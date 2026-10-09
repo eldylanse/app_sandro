@@ -2,7 +2,7 @@
 
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import ROLES from "../constants/roles.constants.js"
+import ROLES from "../constants/roles.constants.js";
 
 // Sub-esquema para el historial de mediciones del cliente
 const historialMedicionSchema = new mongoose.Schema(
@@ -22,19 +22,19 @@ const historialMedicionSchema = new mongoose.Schema(
     },
   },
   { _id: false }
-); // _id: false evita que se genere un _id único por cada mini-medición si no lo necesitas
+);
 
-// Sub-esquema para el perfil del cliente (solo aplica si el rol es cliente)
+// Sub-esquema para el perfil del cliente
 const perfilClienteSchema = new mongoose.Schema(
   {
     edad: {
       type: Number,
     },
     altura: {
-      type: Number, // en metros, ej: 1.75 o cm, según prefieran
+      type: Number,
     },
     peso: {
-      type: Number, // en kg
+      type: Number,
     },
     imc: {
       type: Number,
@@ -54,6 +54,33 @@ const perfilClienteSchema = new mongoose.Schema(
       type: Date,
     },
     historial_mediciones: [historialMedicionSchema],
+  },
+  { _id: false }
+);
+
+// 🔹 NUEVO: Sub-esquema para guardar tokens y autenticación de Google OAuth 2.0
+const googleAuthSchema = new mongoose.Schema(
+  {
+    googleId: {
+      type: String,
+      default: null,
+    },
+    accessToken: {
+      type: String,
+      default: null,
+    },
+    refreshToken: {
+      type: String,
+      default: null, // ⚠️ Muy importante para generar enlaces de Meet automáticamente
+    },
+    tokenExpiryDate: {
+      type: Date,
+      default: null,
+    },
+    isAuthorized: {
+      type: Boolean,
+      default: false, // Indica si el entrenador/admin concedió permisos a Google Meet
+    },
   },
   { _id: false }
 );
@@ -87,14 +114,18 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    // El perfil de cliente se anidará aquí dentro del documento del usuario
     perfilCliente: {
       type: perfilClienteSchema,
-      default: null, // Si es admin, puede estar en null o vacío
+      default: null,
+    },
+    // 🔹 NUEVO: Anidamos las credenciales de Google (útil principalmente para rol 'admin' / entrenador)
+    googleAuth: {
+      type: googleAuthSchema,
+      default: null,
     },
   },
   {
-    timestamps: true, // Agrega automáticamente createdAt y updatedAt
+    timestamps: true,
     versionKey: false,
   }
 );

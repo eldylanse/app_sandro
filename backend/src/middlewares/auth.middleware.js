@@ -15,19 +15,13 @@ export const verifyAccessToken = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
-
-    // Verificar el token usando la clave secreta de acceso
     const decoded = jwt.verify(token, ACCESS_JWT_SECRET);
-
-    // Buscar al usuario en la base de datos para asegurar que sigue activo
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({
         message: "El usuario asociado a este token ya no existe.",
       });
     }
-
-    // Inyectar los datos del usuario en la petición (req.user)
     req.user = {
       id: user._id,
       role: user.role,
