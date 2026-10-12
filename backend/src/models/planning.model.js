@@ -1,0 +1,71 @@
+"use strict";
+
+import mongoose from "mongoose";
+
+const planningSchema = new mongoose.Schema(
+  {
+    id_cliente: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    nombre: {
+      type: String,
+      required: true,
+      trim: true, // Ej: "Rutina Hipertrofia Fase 1"
+    },
+    objetivo: {
+      type: String,
+      required: true,
+      trim: true, // Ej: "Ganancia muscular"
+    },
+    fecha_inicio: {
+      type: Date,
+      required: true,
+    },
+    fecha_termino: {
+      type: Date,
+      required: true,
+    },
+    microciclos: [
+      {
+        numero_semana: { type: Number, required: true },
+        dias_entrenamiento: [
+          {
+            fecha: { type: Date, required: true },
+            finalizado: { type: Boolean, default: false },
+            ejercicios: [
+              {
+                id_ejercicio: {
+                  type: mongoose.Schema.Types.ObjectId,
+                  ref: "Exercise",
+                  required: true,
+                },
+                series_planificadas: { type: Number },
+                repeticiones_planificadas: { type: String }, // Ej: "10-12"
+                
+                // Historial de rendimiento real del cliente:
+                historial_rendimiento: [
+                  {
+                    fecha_registro: { type: Date, default: Date.now },
+                    serie: { type: Number }, // Número de serie (1, 2, 3...)
+                    peso: { type: Number }, // Peso en kg
+                    repeticiones_reales: { type: Number }, // Repeticiones logradas
+                    tiempo_segundos: { type: Number, required: false }, // Opcional si es ejercicio por tiempo
+                  }
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    versionKey: false,
+    timestamps: true,
+  }
+);
+
+const Planning = mongoose.model("Planning", planningSchema);
+export default Planning;

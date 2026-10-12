@@ -31,3 +31,53 @@ export const getReviewsService = async () => {
 
   return reviews;
 };
+
+// Servicio para eliminar una reseña
+export const deleteReviewService = async (reviewId, userId, userRole) => {
+  const review = await Review.findById(reviewId);
+  if (!review) {
+    throw new Error("Reseña no encontrada.");
+  }
+
+  // Validar si el usuario es el dueño de la reseña o es administrador
+  if (review.id_cliente.toString() !== userId && userRole !== "admin") {
+    throw new Error("No tienes permisos para eliminar esta reseña.");
+  }
+
+  await Review.findByIdAndDelete(reviewId);
+  return { message: "Reseña eliminada exitosamente." };
+};
+
+// Servicio para alternar/seleccionar reseña para la página principal (máximo 2)
+export const toggleFeaturedReviewService = async (reviewId) => {
+  const review = await Review.findById(reviewId);
+  if (!review) {
+    throw new Error("Reseña no encontrada.");
+  }
+
+  // Si ya está destacada, permitimos quitarla
+  if (review.destacada) {
+    review.destacada = false;
+    await review.save();
+    return { message: "Reseña removida de la página principal.", review };
+  }
+
+  // Si no está destacada, verificamos cuántas hay activas actualmente
+  const countFeatured = await Review.countDocuments({ destacada: true });
+  if (countFeatured >= 2) {
+    throw new Error("Límite alcanzado: Solo puedes seleccionar un máximo de 2 reseñas para la página inicial.");
+  }
+
+  review.destacada = true;
+  await review.save();
+  return { message: "Reseña seleccionada para la página principal exitosamente.", review };
+};
+
+// Servicio para obtener únicamente las reseñas seleccionadas para el Home
+export const getFeaturedReviewsService = async () => {
+  const reviews = await Review.find({ destacada: true })
+    .populate("id_cliente", "nombre email")
+    .sort({ fecha_creacion: -1 });
+  
+  return reviews;
+};
