@@ -20,6 +20,10 @@ const reviewSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    destacada: {
+      type: Boolean,
+      default: false, // Por defecto no está seleccionada para el home
+    },
     fecha_creacion: {
       type: Date,
       default: Date.now, // Toma la fecha y hora actual automáticamente al crearse
