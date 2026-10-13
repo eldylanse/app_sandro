@@ -9,16 +9,16 @@ const historialMedicionSchema = new mongoose.Schema(
   {
     fecha: {
       type: Date,
-      required: true,
+      required: false,
       default: Date.now,
     },
     peso: {
       type: Number,
-      required: true,
+      required: false,
     },
     imc: {
       type: Number,
-      required: true,
+      required: false,
     },
   },
   { _id: false }

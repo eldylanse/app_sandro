@@ -9,6 +9,7 @@ export const getGoogleAuthUrlController = async (req, res) => {
   try {
     // Usamos el ID del usuario autenticado (del middleware de autenticación)
     const userId = req.user.id; 
+    console.log("user id en get 1 ",userId);
     const url = await getGoogleAuthUrlService(userId);
     
     // Puedes devolver la URL para que el frontend haga la redirección
@@ -21,7 +22,9 @@ export const getGoogleAuthUrlController = async (req, res) => {
 // 🔹 Callback que recibe el código de autorización desde Google
 export const googleCallbackController = async (req, res) => {
   try {
+    console.log("req ",req.query);
     const { code, state: userId } = req.query;
+
 
     if (!code) {
       return res.status(400).json({ status: "Error", message: "Código de autorización no provisto." });

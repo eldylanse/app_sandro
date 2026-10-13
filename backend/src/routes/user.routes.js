@@ -5,15 +5,18 @@ import {
   getGoogleAuthUrlController,
   googleCallbackController,
 } from "../controllers/user.controller.js";
-import { verifyAccessToken as authenticationMiddleware } from "../middlewares/auth.middleware.js";
+import { verifyAccessToken } from "../middlewares/auth.middleware.js";
+import {isAdmin } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
+
+router.use(verifyAccessToken);
 router.get(
   "/google/auth-url",
-  authenticationMiddleware,
+  isAdmin,
   getGoogleAuthUrlController
 );
 
-router.get("/google/callback", googleCallbackController);
+router.get("/google/callback", isAdmin, googleCallbackController);
 
 export default router;
