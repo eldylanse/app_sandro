@@ -7,59 +7,38 @@ import { ACCESS_JWT_SECRET, REFRESH_JWT_SECRET } from "../config/configEnv.js";
 
 // Servicio para registrar un nuevo usuario
 export const registerService = async (body) => {
-  const { nombre, email, password, role, celular, perfilCliente } = body;
+  const { nombre, email, password, celular } = body;
 
-  // 1. Verificar si el usuario ya existe por su correo
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new Error("El correo electrónico ya se encuentra registrado.");
   }
-
-  // 2. Validar el rol
-  let assignedRole = "cliente";
-  if (role) {
-    if (!ROLES.includes(role)) {
-      throw new Error(`El rol '${role}' no es válido. Roles permitidos: ${ROLES.join(", ")}`);
-    }
-    assignedRole = role;
-  }
-
-  // 3. Encriptar la contraseña
   const hashedPassword = await User.encryptPassword(password);
 
-  // 4. Preparar perfil si es cliente
-  let clientProfileData = null;
-  if (assignedRole === "cliente") {
-    clientProfileData = {
-      edad: perfilCliente?.edad || null,
-      altura: perfilCliente?.altura || null,
-      peso: perfilCliente?.peso || null,
-      imc: perfilCliente?.imc || null,
-      informacion_medica: perfilCliente?.informacion_medica || "",
-      terminos_aceptados: perfilCliente?.terminos_aceptados || false,
-      fecha_inicio_plan: perfilCliente?.fecha_inicio_plan || null,
-      fecha_termino_plan: perfilCliente?.fecha_termino_plan || null,
-      historial_mediciones: perfilCliente?.peso && perfilCliente?.imc ? [{
-        peso: perfilCliente.peso,
-        imc: perfilCliente.imc,
-        fecha: new Date()
-      }] : []
-    };
-  }
+  const clientProfileData = {
+    edad: null,
+    altura: null,
+    peso: null,
+    imc: null,
+    informacion_medica: "",
+    terminos_aceptados: false,
+    fecha_inicio_plan: null,
+    fecha_termino_plan: null,
+    historial_mediciones: []
+  };
 
-  // 5. Crear y guardar el usuario
   const newUser = new User({
     nombre,
     email,
     password: hashedPassword,
-    role: assignedRole,
+    role: "cliente",
     celular,
     perfilCliente: clientProfileData,
+    
   });
 
   const savedUser = await newUser.save();
-
-  // Retornar los datos limpios (sin contraseña)
+  
   return {
     id: savedUser._id,
     nombre: savedUser.nombre,
@@ -69,6 +48,7 @@ export const registerService = async (body) => {
     perfilCliente: savedUser.perfilCliente,
   };
 };
+
 
 // Servicio para iniciar sesión
 export const loginService = async (body) => {

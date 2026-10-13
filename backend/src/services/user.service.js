@@ -8,10 +8,8 @@ import {
 } from "../config/configEnv.js";
 import User from "../models/user.model.js";
 
-// Variable temporal en memoria para respaldar el ID del usuario durante el flujo OAuth
 let pendingUserId = null;
 
-// Helper para instanciar el cliente OAuth2 de Google
 export const getGoogleOAuth2Client = () => {
   return new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
@@ -74,4 +72,56 @@ export const saveGoogleAuthTokensService = async (userId, code) => {
   pendingUserId = null;
 
   return { message: "Cuenta de Google vinculada correctamente." };
+};
+
+export const completeClientProfileService = async (userId, profileData) => {
+  // 1. Buscar al usuario por su ID
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("Usuario no encontrado.");
+  }
+
+  if (user.role !== "cliente") {
+    throw new Error("Este usuario no es un cliente.");
+  }
+
+  const perfil = user.perfilCliente;
+  const isAlreadyFilled = perfil && perfil.peso && perfil.altura && perfil.edad;
+  
+  if (isAlreadyFilled) {
+    throw new Error("El perfil del cliente ya ha sido completado anteriormente.");
+  }
+
+  // 3. Extraer los datos nuevos
+  const { edad, altura, peso, informacion_medica, terminos_aceptados } = profileData;
+
+  let imcCalculado = null;
+  if (peso && altura) {
+    imcCalculado = parseFloat((peso / (altura * altura)).toFixed(2));
+  }
+
+  user.perfilCliente.edad = edad ?? perfil.edad;
+  user.perfilCliente.altura = altura ?? perfil.altura;
+  user.perfilCliente.peso = peso ?? perfil.peso;
+  user.perfilCliente.imc = imcCalculado ?? perfil.imc;
+  user.perfilCliente.informacion_medica = informacion_medica ?? perfil.informacion_medica;
+  user.perfilCliente.terminos_aceptados = terminos_aceptados ?? perfil.terminos_aceptados;
+
+  // Si hay peso e IMC nuevos, agregarlo al historial de mediciones
+  if (peso && imcCalculado) {
+    user.perfilCliente.historial_mediciones.push({
+      peso,
+      imc: imcCalculado,
+      fecha: new Date(),
+    });
+  }
+
+  const updatedUser = await user.save();
+
+  return {
+    id: updatedUser._id,
+    nombre: updatedUser.nombre,
+    email: updatedUser.email,
+    perfilCliente: updatedUser.perfilCliente,
+  };
 };
