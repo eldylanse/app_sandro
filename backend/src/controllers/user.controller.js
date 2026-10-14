@@ -45,7 +45,7 @@ export const googleCallbackController = async (req, res) => {
   }
 };
 
-import { completeClientProfileService } from "../services/client.service.js"; // Ajusta la ruta
+
 
 export const completeProfile = async (req, res) => {
   try {
