@@ -9,6 +9,7 @@ import {
   cancelSessionController,
 } from "../controllers/sesion.controller.js";
 import { verifyAccessToken as authenticationMiddleware } from "../middlewares/auth.middleware.js";
+import { isAdmin } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
@@ -16,18 +17,18 @@ const router = Router();
 router.use(authenticationMiddleware);
 
 // 🔹 POST /api/sessions -> Crear nueva sesión con Meet
-router.post("/", createSessionController);
+router.post("/", isAdmin, createSessionController);
 
 // 🔹 GET /api/sessions -> Listar sesiones (opcional: ?id_cliente=...&estado=...)
-router.get("/", getSessionsController);
+router.get("/", isAdmin, getSessionsController);
 
 // 🔹 GET /api/sessions/:id -> Obtener sesión por ID
-router.get("/:id", getSessionByIdController);
+router.get("/:id", isAdmin, getSessionByIdController);
 
 // 🔹 PUT /api/sessions/:id -> Actualizar estado/notas
-router.put("/:id", updateSessionController);
+router.put("/:id", isAdmin, updateSessionController);
 
 // 🔹 DELETE /api/sessions/:id -> Cancelar sesión
-router.delete("/:id", cancelSessionController);
+router.delete("/:id", isAdmin, cancelSessionController);
 
 export default router;

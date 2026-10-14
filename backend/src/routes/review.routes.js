@@ -9,6 +9,7 @@ import {
   getFeaturedReviews 
 } from "../controllers/review.controller.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
+import { isAdmin, isClient } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
@@ -19,12 +20,12 @@ router.get("/", getReviews);
 router.get("/featured", getFeaturedReviews);
 
 // POST /api/reviews - Crear reseña (Protegida)
-router.post("/", verifyAccessToken, createReview);
+router.post("/", verifyAccessToken, isClient, createReview);
 
 // DELETE /api/reviews/:id - Eliminar una reseña (Protegida: dueño o admin)
 router.delete("/:id", verifyAccessToken, deleteReview);
 
 // PATCH /api/reviews/:id/featured - Alternar estado destacada para el home (Protegida)
-router.patch("/:id/featured", verifyAccessToken, toggleFeaturedReview);
+router.patch("/:id/featured", verifyAccessToken, isAdmin, toggleFeaturedReview);
 
 export default router;
