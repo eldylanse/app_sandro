@@ -9,16 +9,16 @@ const historialMedicionSchema = new mongoose.Schema(
   {
     fecha: {
       type: Date,
-      required: true,
+      required: false,
       default: Date.now,
     },
     peso: {
       type: Number,
-      required: true,
+      required: false,
     },
     imc: {
       type: Number,
-      required: true,
+      required: false,
     },
   },
   { _id: false }
@@ -71,7 +71,7 @@ const googleAuthSchema = new mongoose.Schema(
     },
     refreshToken: {
       type: String,
-      default: null, // ⚠️ Muy importante para generar enlaces de Meet automáticamente
+      default: null, 
     },
     tokenExpiryDate: {
       type: Date,
@@ -79,7 +79,7 @@ const googleAuthSchema = new mongoose.Schema(
     },
     isAuthorized: {
       type: Boolean,
-      default: false, // Indica si el entrenador/admin concedió permisos a Google Meet
+      default: false, 
     },
   },
   { _id: false }
@@ -118,7 +118,6 @@ const userSchema = new mongoose.Schema(
       type: perfilClienteSchema,
       default: null,
     },
-    // 🔹 NUEVO: Anidamos las credenciales de Google (útil principalmente para rol 'admin' / entrenador)
     googleAuth: {
       type: googleAuthSchema,
       default: null,

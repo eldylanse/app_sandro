@@ -7,7 +7,7 @@ export const isAdmin = (req, res, next) => {
     });
   }
 
-  if (req.user.role !== "Admin") {
+  if (req.user.role !== "admin") {
     return res.status(403).json({
       message: "Acceso denegado. Se requieren privilegios de Administrador.",
     });
@@ -23,7 +23,7 @@ export const isClient = (req, res, next) => {
     });
   }
 
-  if (req.user.role !== "Cliente") {
+  if (req.user.role !== "cliente") {
     return res.status(403).json({
       message: "Acceso denegado. Se requieren privilegios de Cliente.",
     });

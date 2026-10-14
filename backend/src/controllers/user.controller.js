@@ -3,12 +3,14 @@
 import {
   getGoogleAuthUrlService,
   saveGoogleAuthTokensService,
+  completeClientProfileService,
 } from "../services/user.service.js";
 
 export const getGoogleAuthUrlController = async (req, res) => {
   try {
     // Usamos el ID del usuario autenticado (del middleware de autenticación)
     const userId = req.user.id; 
+    console.log("user id en get 1 ",userId);
     const url = await getGoogleAuthUrlService(userId);
     
     // Puedes devolver la URL para que el frontend haga la redirección
@@ -21,7 +23,9 @@ export const getGoogleAuthUrlController = async (req, res) => {
 // 🔹 Callback que recibe el código de autorización desde Google
 export const googleCallbackController = async (req, res) => {
   try {
+    console.log("req ",req.query);
     const { code, state: userId } = req.query;
+
 
     if (!code) {
       return res.status(400).json({ status: "Error", message: "Código de autorización no provisto." });
@@ -38,5 +42,29 @@ export const googleCallbackController = async (req, res) => {
     console.error("Error en Google Callback:", error);
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     res.redirect(`${frontendUrl}/admin/settings?googleAuth=error`);
+  }
+};
+
+import { completeClientProfileService } from "../services/client.service.js"; // Ajusta la ruta
+
+export const completeProfile = async (req, res) => {
+  try {
+    // El ID del usuario autenticado usualmente viene del token (req.user o req.user.id)
+    const userId = req.user?.id || req.user?._id; 
+
+    if (!userId) {
+      return res.status(401).json({ message: "No autorizado. Token faltante o inválido." });
+    }
+
+    const updatedUser = await completeClientProfileService(userId, req.body);
+
+    return res.status(200).json({
+      message: "¡Perfil completado exitosamente por primera vez!",
+      data: updatedUser,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.message || "Ocurrió un error al completar el perfil.",
+    });
   }
 };
