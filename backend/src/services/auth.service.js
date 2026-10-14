@@ -105,12 +105,5 @@ export const loginService = async (body) => {
   return {
     accessToken,
     refreshToken,
-    user: {
-      id: userFound._id,
-      nombre: userFound.nombre,
-      email: userFound.email,
-      role: userFound.role,
-      perfilCliente: userFound.perfilCliente,
-    },
   };
 };
