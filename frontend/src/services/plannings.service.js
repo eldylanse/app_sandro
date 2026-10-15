@@ -1,0 +1,28 @@
+import api from './root.service'
+
+const resource = '/plannings'
+
+export async function getPlannings() {
+  const { data } = await api.get(resource)
+  return data
+}
+
+export async function getPlanningById(planningId) {
+  const { data } = await api.get(`${resource}/${planningId}`)
+  return data
+}
+
+export async function createPlanning(planningData) {
+  const { data } = await api.post(resource, planningData)
+  return data
+}
+
+export async function addPerformanceRecord(planningId, performanceData) {
+  const { data } = await api.post(`${resource}/${planningId}/performance`, performanceData)
+  return data
+}
+
+export async function deletePlanning(planningId) {
+  const { data } = await api.delete(`${resource}/${planningId}`)
+  return data
+}

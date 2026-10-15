@@ -2,9 +2,39 @@
 
 import {
   getGoogleAuthUrlService,
+  getClientProfileService,
+  getClientsService,
+  deleteClientService,
   saveGoogleAuthTokensService,
   completeClientProfileService,
 } from "../services/user.service.js";
+
+export const getClients = async (_req, res) => {
+  try {
+    const clients = await getClientsService();
+    return res.status(200).json({ clients });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteClient = async (req, res) => {
+  try {
+    const result = await deleteClientService(req.params.id);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
+  }
+};
+
+export const getClientProfile = async (req, res) => {
+  try {
+    const profile = await getClientProfileService(req.user.id);
+    return res.status(200).json({ data: profile });
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
+  }
+};
 
 export const getGoogleAuthUrlController = async (req, res) => {
   try {

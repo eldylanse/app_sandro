@@ -7,6 +7,10 @@ import {
   GOOGLE_REDIRECT_URI 
 } from "../config/configEnv.js";
 import User from "../models/user.model.js";
+import Planning from "../models/planning.model.js";
+import Review from "../models/review.model.js";
+import Session from "../models/sesion.model.js";
+import Exercise from "../models/exercise.model.js";
 
 let pendingUserId = null;
 
@@ -36,6 +40,90 @@ export const getGoogleAuthUrlService = async (userId) => {
   });
 
   return url;
+};
+
+export const getClientProfileService = async (userId) => {
+  const user = await User.findById(userId).select("nombre email celular role perfilCliente");
+  if (!user) {
+    throw new Error("Usuario no encontrado.");
+  }
+  if (user.role !== "cliente") {
+    throw new Error("Este usuario no es un cliente.");
+  }
+
+  return {
+    id: user._id,
+    nombre: user.nombre,
+    email: user.email,
+    celular: user.celular,
+    perfilCliente: user.perfilCliente,
+  };
+};
+
+export const getClientsService = async () => {
+  const clients = await User.find({ role: "cliente" })
+    .select("nombre email celular perfilCliente createdAt")
+    .sort({ nombre: 1 })
+    .lean();
+  const clientIds = clients.map((client) => client._id);
+  const plannings = await Planning.find({ id_cliente: { $in: clientIds } })
+    .select("id_cliente nombre fecha_inicio fecha_termino")
+    .sort({ fecha_termino: -1 })
+    .lean();
+  const now = new Date();
+  const plansByClient = new Map();
+
+  for (const planning of plannings) {
+    const key = planning.id_cliente.toString();
+    const existing = plansByClient.get(key) || [];
+    existing.push(planning);
+    plansByClient.set(key, existing);
+  }
+
+  return clients.map((client) => {
+    const plans = plansByClient.get(client._id.toString()) || [];
+    const activePlan = plans.find((plan) => new Date(plan.fecha_inicio) <= now && new Date(plan.fecha_termino) >= now);
+    const upcomingPlan = plans.find((plan) => new Date(plan.fecha_inicio) > now);
+    const latestPlan = plans[0];
+    const plan = activePlan || upcomingPlan || latestPlan || null;
+    return {
+      ...client,
+      estadoPlan: activePlan ? "activo" : upcomingPlan ? "programado" : latestPlan ? "finalizado" : "sin_plan",
+      plan: plan ? { nombre: plan.nombre, fecha_inicio: plan.fecha_inicio, fecha_termino: plan.fecha_termino } : null,
+    };
+  });
+};
+
+export const deleteClientService = async (clientId) => {
+  const client = await User.findOne({ _id: clientId, role: "cliente" }).select("_id");
+  if (!client) {
+    throw new Error("Cliente no encontrado.");
+  }
+
+  const sessions = await Session.find({ id_cliente: clientId }).select("id_admin googleEventId");
+  await Promise.all(sessions.map(async (session) => {
+    if (!session.googleEventId) return;
+    try {
+      const admin = await User.findById(session.id_admin).select("googleAuth.refreshToken");
+      if (!admin?.googleAuth?.refreshToken) return;
+      const oauth2Client = getGoogleOAuth2Client();
+      oauth2Client.setCredentials({ refresh_token: admin.googleAuth.refreshToken });
+      const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+      await calendar.events.delete({ calendarId: "primary", eventId: session.googleEventId });
+    } catch (error) {
+      console.warn("No se pudo eliminar una sesión de Google Calendar al borrar un cliente:", error.message);
+    }
+  }));
+
+  await User.deleteOne({ _id: clientId, role: "cliente" });
+
+  await Promise.all([
+    Planning.deleteMany({ id_cliente: clientId }),
+    Review.deleteMany({ id_cliente: clientId }),
+    Session.deleteMany({ id_cliente: clientId }),
+    Exercise.deleteMany({ id_usuario: clientId }),
+  ]);
+  return { message: "Cliente y sus datos asociados fueron eliminados." };
 };
 
 // Servicio para guardar los tokens recibidos en el documento del usuario

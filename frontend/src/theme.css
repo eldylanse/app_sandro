@@ -1,0 +1,410 @@
+:root {
+  --palette-grey: #858c91;
+  --palette-white: #fbfbfa;
+  --palette-coat-grey: #d9dddf;
+  --palette-iron-grey: #454d52;
+  --palette-walnut: #705344;
+  --palette-black: #171a1c;
+  --palette-canvas: #f1f3f4;
+  --palette-line: #cbd0d2;
+  font-size: 18px;
+  color: var(--palette-black);
+  background: var(--palette-white);
+}
+
+body {
+  min-width: 320px;
+  font-size: 18px;
+  color: var(--palette-black);
+  background: var(--palette-white);
+}
+
+.site-shell,
+.client-app,
+.admin-app,
+.dashboard-shell,
+.client-onboarding-shell,
+.client-loading {
+  color: var(--palette-black);
+  background: var(--palette-canvas);
+}
+
+.topbar,
+.footer,
+.client-topbar,
+.admin-topbar,
+.login-modal,
+.admin-modal {
+  background: var(--palette-white) !important;
+}
+
+.plans-section,
+.client-welcome,
+.admin-welcome,
+.ticker {
+  background: var(--palette-coat-grey) !important;
+}
+
+.plan-card,
+.client-admin-card,
+.exercise-admin-card,
+.session-admin-card,
+.profile-identity,
+.profile-metric,
+.profile-detail-card,
+.agenda-session,
+.agenda-empty,
+.routine-card,
+.client-review-card,
+.admin-review-card,
+.planning-section,
+.planning-section .planning-week,
+.review-form,
+.client-form,
+.admin-form,
+.dashboard-card {
+  background: var(--palette-white) !important;
+}
+
+.plan-featured,
+.closing-cta,
+.access-page,
+.week-day.is-selected,
+.button-dark,
+.button-dark:hover {
+  background: var(--palette-iron-grey) !important;
+  color: var(--palette-white) !important;
+}
+
+.brand,
+.nav-links > a,
+.footer a,
+.footer button,
+.button-outline,
+.client-nav button,
+.admin-nav button,
+.client-page-heading h1,
+.admin-page-heading h1,
+.client-page h2,
+.admin-page h2,
+.client-page h3,
+.admin-page h3,
+.plan-card h3,
+.intro h2,
+.plans-heading h2,
+.about h2 {
+  color: var(--palette-black);
+}
+
+.brand-mark,
+.login-mark,
+.button-primary,
+.button-primary:hover,
+.featured-label,
+.admin-avatar,
+.client-welcome-avatar,
+.profile-avatar,
+.admin-client-avatar,
+.exercise-admin-icon,
+.client-icon-badge,
+.routine-icon,
+.planning-section-heading > span {
+  background: var(--palette-walnut) !important;
+  color: var(--palette-white) !important;
+}
+
+.button-primary,
+.button-primary:hover {
+  border-color: var(--palette-walnut) !important;
+}
+
+.eyebrow,
+.eyebrow span,
+.section-kicker,
+.client-kicker,
+.admin-kicker,
+.client-page-heading h1 em,
+.admin-page-heading h1 em,
+.hero h1 em,
+.about h2 em,
+.closing-cta h2 em,
+.login-modal h2 em,
+.profile-metric > div,
+.exercise-admin-main > a,
+.planning-add-inline,
+.planning-add-day,
+.routine-agenda-link,
+.about-link svg,
+.plan-card li svg,
+.review-stars,
+.admin-review-stars,
+.featured-counter,
+.session-admin-date {
+  color: var(--palette-walnut) !important;
+}
+
+.eyebrow span,
+.plan-dot,
+.hero-stamp svg {
+  background: var(--palette-walnut) !important;
+}
+
+.hero-stamp svg { color: var(--palette-walnut) !important; }
+.hero-image { filter: grayscale(.72); }
+.hero-shade { background: linear-gradient(90deg,rgba(15,17,18,.93) 0%,rgba(15,17,18,.73) 42%,rgba(15,17,18,.12) 100%),linear-gradient(0deg,rgba(15,17,18,.38),transparent 35%) !important; }
+.closing-cta h2,
+.closing-cta .section-kicker,
+.access-page h1,
+.access-page .section-kicker,
+.plan-featured h3,
+.plan-featured li,
+.plan-featured .plan-desc,
+.plan-featured .plan-top,
+.hero,
+.hero h1,
+.hero .text-link { color: var(--palette-white) !important; }
+
+.method-grid,
+.method-grid article + article,
+.plan-card ul,
+.plans-section,
+.dashboard-card,
+.dashboard-shell .footer,
+.client-topbar,
+.admin-topbar,
+.client-footer,
+.admin-footer,
+.profile-identity,
+.profile-metric,
+.profile-detail-card,
+.agenda-session,
+.agenda-exercise,
+.client-admin-card,
+.exercise-admin-card,
+.session-admin-card,
+.admin-review-card,
+.planning-section,
+.planning-week,
+.planning-day,
+.planning-add-day,
+.client-form,
+.admin-form,
+.review-form,
+.routine-card {
+  border-color: var(--palette-line) !important;
+}
+
+.client-onboarding-heading h1 em,
+.client-page-heading h1 em,
+.admin-page-heading h1 em,
+.routine-goal,
+.admin-review-card.is-featured,
+.admin-review-card.is-featured .admin-review-content,
+.category-tag,
+.plan-badge,
+.review-feature-state.is-featured { color: var(--palette-walnut) !important; }
+
+.plan-badge,
+.category-tag,
+.routine-active,
+.session-status,
+.plan-top,
+.featured-counter,
+.week-day,
+.week-day span { background-color: var(--palette-coat-grey) !important; }
+
+.site-shell p,
+.client-app p,
+.admin-app p {
+  font-size: 14px !important;
+}
+
+.site-shell small,
+.client-app small,
+.admin-app small,
+.site-shell label,
+.client-app label,
+.admin-app label,
+.site-shell input,
+.client-app input,
+.admin-app input,
+.site-shell select,
+.client-app select,
+.admin-app select,
+.site-shell textarea,
+.client-app textarea,
+.admin-app textarea {
+  font-size: 13px !important;
+}
+
+.site-shell button,
+.client-app button,
+.admin-app button {
+  font-size: 14px;
+}
+
+.site-shell .nav-links > a,
+.client-app .client-nav button,
+.admin-app .admin-nav button,
+.client-app .client-kicker,
+.admin-app .admin-kicker,
+.client-app .client-welcome span,
+.admin-app .admin-welcome span {
+  font-size: 12px !important;
+}
+
+.admin-app .admin-nav button { font-size: 12px !important; }
+.site-shell .nav-links > a { font-size: 13px !important; }
+
+.site-shell .button,
+.client-app .button,
+.admin-app .button {
+  font-size: 14px;
+}
+
+.admin-search input,
+.client-input-wrap input,
+.planning-exercise-row input,
+.planning-exercise-row select { font-size: 13px !important; }
+
+.site-shell .hero-lead,
+.site-shell .intro-main > p,
+.site-shell .plans-heading > p,
+.site-shell .about-copy > p:not(.about-pretitle) { font-size: 15px !important; }
+
+.method-icon,
+.method-number,
+.about-pretitle,
+.section-kicker,
+.client-kicker,
+.admin-kicker { color: var(--palette-grey) !important; }
+
+.proof-avatars span,
+.proof-avatars span:nth-child(2),
+.proof-avatars span:nth-child(3) {
+  background: var(--palette-iron-grey) !important;
+}
+
+.plan-activo,
+.plan-programado,
+.plan-finalizado,
+.plan-sin_plan,
+.session-status,
+.session-status.is-complete,
+.admin-notice,
+.review-notice {
+  background: var(--palette-coat-grey) !important;
+  color: var(--palette-iron-grey) !important;
+}
+
+.plan-activo i { color: var(--palette-walnut); }
+.button-outline { background: var(--palette-white); }
+
+/* Reseñas destacadas junto al método; el carrusel avanza hacia la derecha. */
+.intro-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(270px, .75fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+.method-column { min-width: 0; }
+.homepage-reviews {
+  min-width: 0;
+  overflow: hidden;
+  border-left: 1px solid var(--palette-line);
+  padding: 3px 0 8px clamp(22px, 3vw, 40px);
+}
+.homepage-reviews-heading { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin-bottom: 24px; }
+.homepage-reviews-heading h3 {
+  margin: 15px 0 0;
+  color: var(--palette-black);
+  font: 700 clamp(24px, 2.3vw, 32px)/1.1 'Manrope', sans-serif;
+  letter-spacing: -1.1px;
+}
+.reviews-direction { color: var(--palette-walnut); font-size: 24px; line-height: 1; }
+.review-marquee { overflow: hidden; margin-right: -1px; mask-image: linear-gradient(90deg, transparent, #000 5%, #000 94%, transparent); }
+.review-marquee-track { display: flex; width: max-content; gap: 14px; animation: reviews-move-right 10s linear infinite; }
+.review-marquee:hover .review-marquee-track,
+.review-marquee:focus-within .review-marquee-track { animation-play-state: paused; }
+.homepage-review-card {
+  width: clamp(220px, 24vw, 285px);
+  min-height: 198px;
+  padding: 21px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--palette-white);
+  border: 1px solid var(--palette-line);
+}
+.homepage-review-stars { display: flex; gap: 3px; color: var(--palette-walnut); }
+.homepage-review-card > p { color: var(--palette-iron-grey); font-size: 14px !important; line-height: 1.7; margin: 17px 0 19px; }
+.homepage-review-card > strong { color: var(--palette-grey); font-size: 12px; margin-top: auto; }
+.homepage-reviews-empty { color: var(--palette-grey); font-size: 14px !important; line-height: 1.7; }
+@keyframes reviews-move-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+/* Evita que las reglas antiguas de cada pantalla conserven otros colores. */
+.site-shell,
+.client-app,
+.admin-app,
+.dashboard-shell { background-color: var(--palette-canvas) !important; }
+.topbar, .footer, .client-topbar, .admin-topbar, .login-modal, .admin-modal,
+.plan-card, .client-admin-card, .exercise-admin-card, .session-admin-card,
+.profile-identity, .profile-metric, .profile-detail-card, .agenda-session,
+.agenda-empty, .routine-card, .client-review-card, .admin-review-card,
+.planning-section, .review-form, .client-form, .admin-form, .dashboard-card {
+  background-color: var(--palette-white) !important;
+}
+.plans-section, .client-welcome, .admin-welcome, .ticker,
+.plan-badge, .category-tag, .routine-active, .session-status,
+.featured-counter, .week-day { background-color: var(--palette-coat-grey) !important; }
+.brand-mark, .login-mark, .button-primary, .button-primary:hover,
+.featured-label, .admin-avatar, .client-welcome-avatar, .profile-avatar,
+.admin-client-avatar, .exercise-admin-icon, .client-icon-badge,
+.routine-icon, .planning-section-heading > span {
+  background-color: var(--palette-walnut) !important;
+  color: var(--palette-white) !important;
+}
+.button-primary, .button-primary:hover { color: var(--palette-white) !important; }
+.nav-links > a:hover, .footer a:hover, .footer button:hover { color: var(--palette-walnut) !important; }
+.client-nav button.is-active, .admin-nav button.is-active,
+.client-nav button[aria-current='page'], .admin-nav button[aria-current='page'] {
+  color: var(--palette-walnut) !important;
+}
+.plan-activo, .plan-programado, .plan-finalizado, .plan-sin_plan,
+.session-status, .session-status.is-complete, .admin-notice, .review-notice {
+  background-color: var(--palette-coat-grey) !important;
+  color: var(--palette-iron-grey) !important;
+}
+.plan-featured { background-color: var(--palette-iron-grey) !important; }
+.plan-featured .plan-top { background: transparent !important; }
+.week-day span { background: transparent !important; }
+.eyebrow span, .plan-dot, .hero-stamp svg { color: var(--palette-walnut) !important; }
+.hero-shade { background: linear-gradient(90deg,rgba(15,17,18,.93) 0%,rgba(15,17,18,.73) 42%,rgba(15,17,18,.12) 100%),linear-gradient(0deg,rgba(15,17,18,.38),transparent 35%) !important; }
+
+@media (max-width: 960px) {
+  .intro-layout { grid-template-columns: 1fr; gap: 38px; }
+  .homepage-reviews { border-left: 0; border-top: 1px solid var(--palette-line); padding: 30px 0 0; }
+  .homepage-review-card { width: min(285px, 76vw); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .review-marquee-track { animation: none; transform: none; }
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: var(--palette-walnut) !important;
+}
+
+::selection {
+  background: var(--palette-iron-grey);
+  color: var(--palette-white);
+}
+
+@media (max-width: 760px) {
+  .hero h1 { font-size: 56px; }
+  .client-page-heading p,
+  .admin-page-heading p { font-size: 13px !important; }
+}
