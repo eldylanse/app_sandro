@@ -7,6 +7,8 @@ import {
   deleteClientService,
   saveGoogleAuthTokensService,
   completeClientProfileService,
+  addClientMeasurementService,
+  getGoogleConnectionStatusService,
 } from "../services/user.service.js";
 
 export const getClients = async (_req, res) => {
@@ -40,38 +42,44 @@ export const getGoogleAuthUrlController = async (req, res) => {
   try {
     // Usamos el ID del usuario autenticado (del middleware de autenticación)
     const userId = req.user.id; 
-    console.log("user id en get 1 ",userId);
     const url = await getGoogleAuthUrlService(userId);
-    
-    // Puedes devolver la URL para que el frontend haga la redirección
     res.status(200).json({ status: "Success", data: { url } });
   } catch (error) {
     res.status(500).json({ status: "Error", message: error.message });
   }
 };
 
+export const getGoogleConnectionStatusController = async (req, res) => {
+  try {
+    const isConnected = await getGoogleConnectionStatusService(req.user.id);
+    return res.status(200).json({ data: { isConnected } });
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
+  }
+};
+
 // 🔹 Callback que recibe el código de autorización desde Google
 export const googleCallbackController = async (req, res) => {
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   try {
-    console.log("req ",req.query);
-    const { code, state: userId } = req.query;
+    const { code, state, error: providerError } = req.query;
 
-
+    if (providerError) {
+      return res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=error`);
+    }
     if (!code) {
-      return res.status(400).json({ status: "Error", message: "Código de autorización no provisto." });
+      return res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=error`);
     }
 
     // Guardamos los tokens intercambiados en MongoDB
-    await saveGoogleAuthTokensService(userId, code);
+    await saveGoogleAuthTokensService(state, code);
 
     // Redirigimos de vuelta a tu Frontend (Vercel / React)
     // Cambia esta URL por la pantalla de ajustes/perfil de tu frontend
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    res.redirect(`${frontendUrl}/admin/settings?googleAuth=success`);
+    res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=success`);
   } catch (error) {
     console.error("Error en Google Callback:", error);
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    res.redirect(`${frontendUrl}/admin/settings?googleAuth=error`);
+    res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=error`);
   }
 };
 
@@ -96,5 +104,18 @@ export const completeProfile = async (req, res) => {
     return res.status(400).json({
       message: error.message || "Ocurrió un error al completar el perfil.",
     });
+  }
+};
+
+export const addClientMeasurement = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "No autorizado. Token faltante o inválido." });
+    }
+    const profile = await addClientMeasurementService(userId, req.body);
+    return res.status(201).json({ message: "Medición agregada correctamente.", data: profile });
+  } catch (error) {
+    return res.status(400).json({ message: error.message || "No se pudo guardar la medición." });
   }
 };

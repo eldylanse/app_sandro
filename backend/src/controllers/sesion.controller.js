@@ -11,7 +11,7 @@ import {
 // Crear sesión
 export const createSessionController = async (req, res) => {
   try {
-    const session = await createSessionService(req.body);
+    const session = await createSessionService({ ...req.body, id_admin: req.user.id });
     res.status(201).json({
       status: "Success",
       message: "Sesión agendada correctamente y enlace de Meet generado.",

@@ -8,12 +8,16 @@ import {
   getClientProfile,
   getClients,
   deleteClient,
+  addClientMeasurement,
+  getGoogleConnectionStatusController,
 } from "../controllers/user.controller.js";
 import { verifyAccessToken } from "../middlewares/auth.middleware.js";
 import {isAdmin, isClient } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
+// Google redirige aquí desde fuera de la aplicación y no puede enviar el JWT del administrador.
+router.get("/google/callback", googleCallbackController);
 router.use(verifyAccessToken);
 router.get("/clientes", isAdmin, getClients);
 router.delete("/clientes/:id", isAdmin, deleteClient);
@@ -23,10 +27,11 @@ router.get(
   isAdmin,
   getGoogleAuthUrlController
 );
-router.get("/google/callback", isAdmin, googleCallbackController);
+router.get("/google/status", isAdmin, getGoogleConnectionStatusController);
 router.patch(
   "/completar-perfil", 
    isClient,
   completeProfile
 );
+router.post("/mediciones", isClient, addClientMeasurement);
 export default router;

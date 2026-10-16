@@ -1,11 +1,31 @@
 "use strict";
 
 import Planning from "../models/planning.model.js";
+import User from "../models/user.model.js";
 
 // 1. Crear una planificación
 export const createPlanningService = async (data) => {
+  const client = await User.findOne({ _id: data.id_cliente, role: "cliente" }).select("_id");
+  if (!client) throw new Error("Selecciona un cliente válido para la planificación.");
   const newPlanning = new Planning(data);
   return await newPlanning.save();
+};
+
+export const updatePlanningService = async (planningId, data) => {
+  const planning = await Planning.findById(planningId);
+  if (!planning) throw new Error("Planificación no encontrada.");
+
+  const client = await User.findOne({ _id: data.id_cliente, role: "cliente" }).select("_id");
+  if (!client) throw new Error("Selecciona un cliente válido para la planificación.");
+
+  planning.id_cliente = data.id_cliente;
+  planning.nombre = data.nombre;
+  planning.objetivo = data.objetivo;
+  planning.fecha_inicio = data.fecha_inicio;
+  planning.fecha_termino = data.fecha_termino;
+  planning.microciclos = data.microciclos;
+  await planning.save();
+  return planning;
 };
 
 // 2. Obtener planificaciones (Si es cliente ve las suyas, si es admin ve todas)
@@ -52,6 +72,26 @@ export const addPerformanceRecordService = async ({ planningId, microcicloIndex,
   // Insertar el nuevo registro de rendimiento (serie, peso, repeticiones reales)
   targetExercise.historial_rendimiento.push(registro);
 
+  await planning.save();
+  return planning;
+};
+
+export const updateTrainingDayStatusService = async ({ planningId, clientId, microcicloIndex, diaIndex, finalizado }) => {
+  if (!Number.isInteger(microcicloIndex) || !Number.isInteger(diaIndex) || typeof finalizado !== "boolean") {
+    throw new Error("El día y su estado de término no son válidos.");
+  }
+
+  const planning = await Planning.findOne({ _id: planningId, id_cliente: clientId });
+  if (!planning) {
+    throw new Error("Planificación no encontrada para este cliente.");
+  }
+
+  const day = planning.microciclos[microcicloIndex]?.dias_entrenamiento[diaIndex];
+  if (!day) {
+    throw new Error("Día de entrenamiento no encontrado en la planificación.");
+  }
+
+  day.finalizado = finalizado;
   await planning.save();
   return planning;
 };

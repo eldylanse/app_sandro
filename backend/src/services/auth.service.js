@@ -7,7 +7,16 @@ import { ACCESS_JWT_SECRET, REFRESH_JWT_SECRET } from "../config/configEnv.js";
 
 // Servicio para registrar un nuevo usuario
 export const registerService = async (body) => {
-  const { nombre, email, password, celular } = body;
+  const { nombre, email, password, celular, fecha_inicio_plan, fecha_termino_plan } = body;
+
+  const startDate = new Date(fecha_inicio_plan);
+  const endDate = new Date(fecha_termino_plan);
+  if (!fecha_inicio_plan || Number.isNaN(startDate.getTime()) || !fecha_termino_plan || Number.isNaN(endDate.getTime())) {
+    throw new Error("Las fechas de inicio y término del plan son obligatorias y deben ser válidas.");
+  }
+  if (endDate < startDate) {
+    throw new Error("La fecha de término del plan no puede ser anterior a la fecha de inicio.");
+  }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -22,8 +31,8 @@ export const registerService = async (body) => {
     imc: null,
     informacion_medica: "",
     terminos_aceptados: false,
-    fecha_inicio_plan: null,
-    fecha_termino_plan: null,
+    fecha_inicio_plan: startDate,
+    fecha_termino_plan: endDate,
     historial_mediciones: []
   };
 

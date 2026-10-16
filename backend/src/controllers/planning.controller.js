@@ -2,10 +2,12 @@
 
 import {
   createPlanningService,
+  updatePlanningService,
   getPlanningsService,
   getPlanningByIdService,
   addPerformanceRecordService,
   deletePlanningService,
+  updateTrainingDayStatusService,
 } from "../services/planning.service.js";
 
 // Crear una planificación
@@ -19,6 +21,15 @@ export const createPlanning = async (req, res) => {
   } catch (error) {
     console.error("Error al crear planificación:", error.message);
     return res.status(400).json({ message: error.message });
+  }
+};
+
+export const updatePlanning = async (req, res) => {
+  try {
+    const planning = await updatePlanningService(req.params.id, req.body);
+    return res.status(200).json({ message: "Planificación actualizada correctamente.", planning });
+  } catch (error) {
+    return res.status(400).json({ message: error.message || "No se pudo actualizar la planificación." });
   }
 };
 
@@ -75,6 +86,21 @@ export const addPerformanceRecord = async (req, res) => {
   } catch (error) {
     console.error("Error al registrar rendimiento:", error.message);
     return res.status(400).json({ message: error.message });
+  }
+};
+
+export const updateTrainingDayStatus = async (req, res) => {
+  try {
+    const planning = await updateTrainingDayStatusService({
+      planningId: req.params.id,
+      clientId: req.user.id,
+      microcicloIndex: req.body.microcicloIndex,
+      diaIndex: req.body.diaIndex,
+      finalizado: req.body.finalizado,
+    });
+    return res.status(200).json({ message: "Estado del entrenamiento actualizado.", planning });
+  } catch (error) {
+    return res.status(400).json({ message: error.message || "No se pudo actualizar el estado del día." });
   }
 };
 

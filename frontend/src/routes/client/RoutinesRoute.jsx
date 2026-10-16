@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, CalendarDays, Dumbbell, Play, Target } from 'lucide-react'
-import { getPlannings } from '../../services/plannings.service'
+import { ArrowLeft, CalendarDays, Check, Dumbbell, Play, RotateCcw, Target } from 'lucide-react'
+import { getPlannings, updateTrainingDayStatus } from '../../services/plannings.service'
 
 function shortDate(value) {
   if (!value) return 'Fecha pendiente'
@@ -37,6 +37,7 @@ export default function RoutinesRoute({ onBackToAgenda }) {
   const [plannings, setPlannings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [savingStatus, setSavingStatus] = useState(false)
   const params = new URLSearchParams(window.location.search)
   const selectedPlanningId = params.get('planning')
   const selectedCycleIndex = Number(params.get('cycle'))
@@ -56,13 +57,34 @@ export default function RoutinesRoute({ onBackToAgenda }) {
   const selectedDay = Number.isInteger(selectedDayIndex) ? selectedCycle?.dias_entrenamiento?.[selectedDayIndex] : null
   const selectedDate = selectedDay?.fecha ? new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }).format(localDate(selectedDay.fecha)) : ''
 
+  async function toggleDayStatus() {
+    if (!selectedPlanning || !selectedDay || savingStatus) return
+    setSavingStatus(true)
+    setError('')
+    const finalizado = !selectedDay.finalizado
+    try {
+      await updateTrainingDayStatus(selectedPlanning._id, { microcicloIndex: selectedCycleIndex, diaIndex: selectedDayIndex, finalizado })
+      setPlannings((current) => current.map((planning) => planning._id !== selectedPlanning._id ? planning : {
+        ...planning,
+        microciclos: planning.microciclos.map((cycle, cycleIndex) => cycleIndex !== selectedCycleIndex ? cycle : {
+          ...cycle,
+          dias_entrenamiento: cycle.dias_entrenamiento.map((day, dayIndex) => dayIndex !== selectedDayIndex ? day : { ...day, finalizado }),
+        }),
+      }))
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'No se pudo actualizar el estado de la sesión.')
+    } finally {
+      setSavingStatus(false)
+    }
+  }
+
   return <section className="client-page">
     <div className="client-page-heading"><div><div className="client-kicker">DISEÑADAS PARA TI</div><h1>Mis <em>rutinas.</em></h1><p>Ejercicios de tu planificación, en el orden indicado por tu preparador.</p></div></div>
     {loading && <div className="client-state">Cargando tus rutinas…</div>}
     {error && <div className="client-state client-error">{error}</div>}
     {!loading && !error && selectedPlanning && selectedDay && <>
       <button type="button" className="routine-back-link" onClick={onBackToAgenda}> <ArrowLeft size={16} /> Volver a la agenda</button>
-      <header className="routine-day-header"><div className="routine-icon"><Dumbbell size={19} /></div><div><span>SEMANA {selectedCycle.numero_semana} · {selectedDate}</span><h2>{selectedPlanning.nombre}</h2><p><Target size={15} /> {selectedPlanning.objetivo}</p></div><span className={`session-status${selectedDay.finalizado ? ' is-complete' : ''}`}>{selectedDay.finalizado ? 'Completado' : 'Planificado'}</span></header>
+      <header className="routine-day-header"><div className="routine-icon"><Dumbbell size={19} /></div><div><span>SEMANA {selectedCycle.numero_semana} · {selectedDate}</span><h2>{selectedPlanning.nombre}</h2><p><Target size={15} /> {selectedPlanning.objetivo}</p></div><span className={`session-status${selectedDay.finalizado ? ' is-complete' : ''}`}>{selectedDay.finalizado ? 'Completado' : 'Planificado'}</span><button className="routine-completion-button" type="button" onClick={toggleDayStatus} disabled={savingStatus}>{selectedDay.finalizado ? <RotateCcw size={15} /> : <Check size={15} />}{savingStatus ? 'Guardando…' : selectedDay.finalizado ? 'Deshacer' : 'Marcar completado'}</button></header>
       <div className="routine-exercise-list">{(selectedDay.ejercicios || []).map((plannedExercise, index) => {
         const exercise = plannedExercise.id_ejercicio && typeof plannedExercise.id_ejercicio === 'object' ? plannedExercise.id_ejercicio : {}
         const embedUrl = youtubeEmbedUrl(exercise.url_video)

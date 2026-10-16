@@ -20,9 +20,19 @@ export async function getGoogleAuthUrl() {
   return data
 }
 
+export async function getGoogleConnectionStatus() {
+  const { data } = await api.get('/users/google/status')
+  return data.data.isConnected
+}
+
 export async function completeClientProfile(profileData) {
   const { data } = await api.patch('/users/completar-perfil', profileData)
   return data
+}
+
+export async function addClientMeasurement(measurement) {
+  const { data } = await api.post('/users/mediciones', measurement)
+  return data.data
 }
 
 // Esta ruta recibe el redirect de Google y redirige al frontend; no debe

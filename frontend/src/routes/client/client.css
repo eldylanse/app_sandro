@@ -35,6 +35,13 @@
 .routine-video-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 .routine-video-unavailable { grid-column:1/-1; margin:18px 0 0 58px; color:var(--palette-grey); font-size:13px; }
 .routine-planning-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; }
+.measurement-form { display:grid; gap:8px; margin:0 0 18px; padding:16px; background:var(--palette-white); border:1px solid var(--palette-line); }
+.measurement-form > label { color:var(--palette-iron-grey); font-size:13px; font-weight:700; }
+.measurement-form > div { display:flex; gap:10px; }
+.measurement-form input { width:min(220px,100%); min-height:42px; padding:9px 12px; border:1px solid var(--palette-line); background:var(--palette-white); color:var(--palette-black); font:inherit; }
+.measurement-feedback { margin:0; color:var(--palette-iron-grey); font-size:13px; }
+.routine-completion-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; flex:none; min-height:40px; padding:0 13px; border:1px solid var(--palette-coat-grey); background:var(--palette-white); color:var(--palette-iron-grey); font:700 13px 'DM Sans',sans-serif; cursor:pointer; }
+.routine-completion-button:disabled { opacity:.6; cursor:wait; }
 
 @media(max-width:760px) {
   .agenda-exercise-hint { opacity:1; font-size:10px; }
@@ -42,6 +49,7 @@
   .routine-day-header { align-items:flex-start; flex-wrap:wrap; padding:16px; }
   .routine-day-header h2 { font-size:19px; }
   .routine-day-header .session-status { margin-left:62px; }
+  .routine-completion-button { margin-left:62px; }
   .routine-exercise-card { grid-template-columns:1fr; gap:16px; padding:16px; }
   .routine-exercise-title h3 { font-size:18px; }
   .routine-exercise-metrics { justify-content:flex-start; margin-left:58px; }
@@ -49,4 +57,6 @@
   .routine-video { margin:0; }
   .routine-video-unavailable { margin:0; }
   .routine-planning-list { grid-template-columns:1fr; }
+  .measurement-form > div { flex-wrap:wrap; }
+  .measurement-form input { flex:1; }
 }

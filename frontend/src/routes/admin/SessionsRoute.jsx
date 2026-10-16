@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { CalendarDays, ExternalLink, Plus, Trash2, X } from 'lucide-react'
-import { getClients } from '../../services/users.service'
+import { CalendarDays, ExternalLink, Link2, Plus, Trash2, X } from 'lucide-react'
+import { getClients, getGoogleAuthUrl, getGoogleConnectionStatus } from '../../services/users.service'
 import { cancelSession, createSession, getSessions, updateSession } from '../../services/sessions.service'
 
 function dateTime(value) {
@@ -17,6 +17,8 @@ export default function SessionsRoute({ adminId }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [googleConnected, setGoogleConnected] = useState(false)
+  const [connectingGoogle, setConnectingGoogle] = useState(false)
 
   async function refresh() {
     const response = await getSessions()
@@ -25,17 +27,45 @@ export default function SessionsRoute({ adminId }) {
 
   useEffect(() => {
     let active = true
-    Promise.all([getSessions(), getClients()])
-      .then(([sessionResponse, clientList]) => {
+    Promise.all([getSessions(), getClients(), getGoogleConnectionStatus().catch(() => false)])
+      .then(([sessionResponse, clientList, connectionStatus]) => {
         if (!active) return
         setSessions(sessionResponse.data || [])
         setClients(clientList || [])
+        setGoogleConnected(connectionStatus)
         if (clientList?.length) setForm((current) => ({ ...current, id_cliente: current.id_cliente || clientList[0]._id }))
       })
       .catch((requestError) => { if (active) setError(requestError.response?.data?.message || 'No se pudieron cargar las sesiones.') })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const googleAuth = params.get('googleAuth')
+    if (!googleAuth) return
+    if (googleAuth === 'success') {
+      setGoogleConnected(true)
+      setNotice('Google Calendar quedó conectado. Ya puedes agendar sesiones con Meet.')
+    } else {
+      setError('No se pudo conectar Google Calendar. Inténtalo nuevamente y acepta los permisos solicitados.')
+    }
+    window.history.replaceState({}, '', `${window.location.pathname}${window.location.hash}`)
+  }, [])
+
+  async function connectGoogle() {
+    setConnectingGoogle(true)
+    setError('')
+    try {
+      const response = await getGoogleAuthUrl()
+      const url = response.data?.url
+      if (!url) throw new Error('Google no devolvió una dirección de autorización.')
+      window.location.assign(url)
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || requestError.message || 'No se pudo iniciar la conexión con Google.')
+      setConnectingGoogle(false)
+    }
+  }
 
   async function submit(event) {
     event.preventDefault()
@@ -81,7 +111,8 @@ export default function SessionsRoute({ adminId }) {
   return <section className="admin-page">
     <div className="admin-page-heading"><div><div className="admin-kicker">AGENDA Y ACOMPAÑAMIENTO</div><h1>Sesiones <em>agendadas.</em></h1><p>Coordina reuniones de seguimiento y revisa sus enlaces.</p></div><button className="button button-primary admin-action" onClick={() => { setShowForm(!showForm); setError('') }}>{showForm ? <X size={16} /> : <Plus size={16} />}{showForm ? 'Cerrar' : 'Agendar sesión'}</button></div>
     {error && <p className="admin-alert" role="alert">{error}</p>}{notice && <p className="admin-notice" role="status">{notice}</p>}
-    {showForm && <form className="admin-form session-create-form" onSubmit={submit}><h2>Nueva sesión</h2><div className="admin-form-grid"><label>Cliente<select required value={form.id_cliente} onChange={(event) => setForm({ ...form, id_cliente: event.target.value })}><option value="" disabled>Selecciona un cliente</option>{clients.map((client) => <option key={client._id} value={client._id}>{client.nombre} · {client.email}</option>)}</select></label><label>Fecha y hora<input type="datetime-local" required value={form.fecha_reunion} onChange={(event) => setForm({ ...form, fecha_reunion: event.target.value })} /></label><label className="admin-field-wide">Notas<textarea rows="2" value={form.notas} onChange={(event) => setForm({ ...form, notas: event.target.value })} placeholder="Temas para revisar en la sesión" /></label></div>{!clients.length && <p className="admin-alert">Primero debes crear un cliente.</p>}<button className="button button-dark" disabled={saving || !clients.length}>{saving ? 'Agendando…' : 'Crear sesión y Meet'}</button></form>}
+    <section className={`google-calendar-card${googleConnected ? ' is-connected' : ''}`}><div><span className="google-calendar-icon"><CalendarDays size={18} /></span><div><strong>{googleConnected ? 'Google Calendar conectado' : 'Conecta Google Calendar para crear Meet'}</strong><p>{googleConnected ? 'Las sesiones nuevas incluirán una invitación y un enlace de videollamada.' : 'Autoriza la cuenta del preparador para crear eventos y generar automáticamente enlaces de Google Meet.'}</p></div></div><button className="button button-outline" type="button" onClick={connectGoogle} disabled={connectingGoogle}>{googleConnected ? <Link2 size={15} /> : <ExternalLink size={15} />}{connectingGoogle ? 'Abriendo Google…' : googleConnected ? 'Volver a conectar' : 'Conectar Google'}</button></section>
+    {showForm && <form className="admin-form session-create-form" onSubmit={submit}><h2>Nueva sesión</h2><div className="admin-form-grid"><label>Cliente<select required value={form.id_cliente} onChange={(event) => setForm({ ...form, id_cliente: event.target.value })}><option value="" disabled>Selecciona un cliente</option>{clients.map((client) => <option key={client._id} value={client._id}>{client.nombre} · {client.email}</option>)}</select></label><label>Fecha y hora<input type="datetime-local" required value={form.fecha_reunion} onChange={(event) => setForm({ ...form, fecha_reunion: event.target.value })} /></label><label className="admin-field-wide">Notas<textarea rows="2" value={form.notas} onChange={(event) => setForm({ ...form, notas: event.target.value })} placeholder="Temas para revisar en la sesión" /></label></div>{!clients.length && <p className="admin-alert">Primero debes crear un cliente.</p>}<button className="button button-dark" disabled={saving || !clients.length || !googleConnected}>{saving ? 'Agendando…' : googleConnected ? 'Crear sesión y Meet' : 'Conecta Google para continuar'}</button></form>}
     {loading && <div className="admin-state">Cargando sesiones…</div>}
     {!loading && !sessions.length && <div className="admin-empty"><CalendarDays size={21} /><strong>No hay sesiones agendadas</strong><p>Las próximas reuniones aparecerán aquí.</p></div>}
     <div className="session-admin-list">{sessions.map((session) => <article className="session-admin-card" key={session._id}><div className="session-admin-date"><CalendarDays size={18} /><span>{dateTime(session.fecha_reunion)}</span></div><div className="session-admin-info"><h2>{session.id_cliente?.nombre || 'Cliente'}</h2><p>{session.notas || 'Sesión de seguimiento'}</p>{session.id_cliente?.email && <small>{session.id_cliente.email}</small>}</div><div className="session-admin-actions"><select aria-label="Estado de la sesión" value={session.estado} onChange={(event) => changeStatus(session, event.target.value)}><option value="pendiente">Pendiente</option><option value="completada">Completada</option><option value="cancelada">Cancelada</option></select>{session.link_meet && <a href={session.link_meet} target="_blank" rel="noreferrer" title="Abrir Google Meet"><ExternalLink size={15} /></a>}{session.estado !== 'cancelada' && <button className="admin-icon-danger" aria-label="Cancelar sesión" onClick={() => remove(session)}><Trash2 size={15} /></button>}</div></article>)}</div>

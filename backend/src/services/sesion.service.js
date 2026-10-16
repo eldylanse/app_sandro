@@ -3,6 +3,7 @@
 import Session from "../models/sesion.model.js";
 import User from "../models/user.model.js";
 import { google } from "googleapis";
+import { randomUUID } from "node:crypto";
 import { getGoogleOAuth2Client } from "./user.service.js";
 
 // 🔹 Crear una nueva sesión con enlace automático a Google Meet
@@ -48,7 +49,7 @@ export const createSessionService = async (sessionData) => {
     attendees: [{ email: clientUser.email }],
     conferenceData: {
       createRequest: {
-        requestId: `meet-session-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        requestId: randomUUID(),
         conferenceSolutionKey: { type: "hangoutsMeet" },
       },
     },
@@ -59,13 +60,26 @@ export const createSessionService = async (sessionData) => {
     calendarId: "primary",
     resource: eventPayload,
     conferenceDataVersion: 1, // REQUERIDO para que genere la videollamada
+    sendUpdates: "all",
   });
 
-  const linkMeet =
-    response.data.hangoutLink || response.data.entryPoints?.[0]?.uri;
+  let event = response.data;
+  let linkMeet = event.hangoutLink || event.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri;
+  for (let attempt = 0; !linkMeet && attempt < 5; attempt += 1) {
+    const conferenceStatus = event.conferenceData?.createRequest?.status?.statusCode;
+    if (conferenceStatus === "failure") break;
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const eventResponse = await calendar.events.get({ calendarId: "primary", eventId: event.id });
+    event = eventResponse.data;
+    linkMeet = event.hangoutLink || event.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri;
+  }
 
   if (!linkMeet) {
-    throw new Error("No se pudo generar el enlace de Google Meet.");
+    await calendar.events.delete({ calendarId: "primary", eventId: event.id }).catch(() => {});
+    const conferenceStatus = event.conferenceData?.createRequest?.status?.statusCode;
+    throw new Error(conferenceStatus === "failure"
+      ? "Google Calendar no pudo generar el enlace de Meet. Revisa que la cuenta permita crear videollamadas."
+      : "Google Calendar aún no entregó el enlace de Meet. Inténtalo nuevamente en unos segundos.");
   }
 
   // 6. Guardar la sesión en la BD
@@ -74,7 +88,7 @@ export const createSessionService = async (sessionData) => {
     id_admin,
     fecha_reunion,
     link_meet: linkMeet,
-    googleEventId: response.data.id,
+    googleEventId: event.id,
     estado: "pendiente",
     notas: notas || "",
   });
