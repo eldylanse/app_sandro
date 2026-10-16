@@ -5,6 +5,7 @@ import ExercisesRoute from './admin/ExercisesRoute'
 import PlanningRoute from './admin/PlanningRoute'
 import ReviewsRoute from './admin/ReviewsRoute'
 import SessionsRoute from './admin/SessionsRoute'
+import brandIcon from '../assets/icon.png'
 import './admin/admin.css'
 
 const tabs = [
@@ -57,9 +58,9 @@ export default function AdminRoutes({ token, onLogout }) {
   if (currentPath === '/admin/resenas') screen = <ReviewsRoute />
 
   return <main className="admin-app">
-    <header className="admin-topbar"><a className="brand" href="/admin/clientes" onClick={(event) => { event.preventDefault(); navigate(tabs[0].path) }}><span className="brand-mark"><Activity size={18} /></span><span>SANDRO<span className="brand-light">TRAINING</span><small className="admin-brand-tag">ADMIN</small></span></a><button className="admin-menu-toggle" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button><nav className={`admin-nav${menuOpen ? ' is-open' : ''}`} aria-label="Navegación del administrador">{tabs.map(({ path: tabPath, label, icon: Icon }) => <button key={tabPath} className={currentPath === tabPath ? 'is-active' : ''} onClick={() => navigate(tabPath)}><Icon size={16} /><span>{label}</span></button>)}<button className="admin-logout" onClick={onLogout}><LogOut size={16} /><span>Cerrar sesión</span></button></nav></header>
+    <header className="admin-topbar"><a className="brand" href="/admin/clientes" onClick={(event) => { event.preventDefault(); navigate(tabs[0].path) }}><span className="brand-mark"><img src={brandIcon} alt="" /></span><span>TRIBU<span className="brand-light">FIT</span><small className="admin-brand-tag">ADMIN</small></span></a><button className="admin-menu-toggle" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button><nav className={`admin-nav${menuOpen ? ' is-open' : ''}`} aria-label="Navegación del administrador">{tabs.map(({ path: tabPath, label, icon: Icon }) => <button key={tabPath} className={currentPath === tabPath ? 'is-active' : ''} onClick={() => navigate(tabPath)}><Icon size={16} /><span>{label}</span></button>)}<button className="admin-logout" onClick={onLogout}><LogOut size={16} /><span>Cerrar sesión</span></button></nav></header>
     <div className="admin-welcome"><div><span>PANEL DEL PREPARADOR</span><strong>{activeTab.label}</strong></div><div className="admin-avatar">S</div></div>
     <div className="admin-content">{screen}</div>
-    <footer className="admin-footer"><span>SANDRO TRAINING · ADMINISTRACIÓN</span><span>Entrena con propósito.</span></footer>
+    <footer className="admin-footer"><span>TRIBU FIT · ADMINISTRACIÓN</span><span>Entrena con propósito.</span></footer>
   </main>
 }

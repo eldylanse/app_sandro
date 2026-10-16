@@ -1,12 +1,16 @@
 :root {
-  --palette-grey: #858c91;
-  --palette-white: #fbfbfa;
-  --palette-coat-grey: #d9dddf;
-  --palette-iron-grey: #454d52;
-  --palette-walnut: #705344;
-  --palette-black: #171a1c;
-  --palette-canvas: #f1f3f4;
-  --palette-line: #cbd0d2;
+  --palette-grey: #6D6A66;
+  --palette-white: #BAB8B6;
+  --palette-coat-grey: #AEA9A5;
+  --palette-iron-grey: #595755;
+  --palette-walnut: #7F7F74;
+  --palette-black: #343331;
+  --palette-canvas: #AEA9A5;
+  --palette-line: #8E8885;
+  --palette-stone: #8E8885;
+  --palette-olive-light: #848574;
+  --palette-sage: #84877B;
+  --palette-iron-light: #595755;
   font-size: 18px;
   color: var(--palette-black);
   background: var(--palette-white);
@@ -408,3 +412,94 @@ textarea:focus-visible {
   .client-page-heading p,
   .admin-page-heading p { font-size: 13px !important; }
 }
+
+/* Identidad Tribu Fit: neutros piedra, carbón y acentos oliva gris. */
+html, body { background:var(--palette-canvas) !important; color:var(--palette-black) !important; }
+.site-shell, .client-app, .admin-app, .dashboard-shell, .client-onboarding-shell { background:var(--palette-canvas) !important; color:var(--palette-black) !important; }
+.topbar, .footer, .client-topbar, .admin-topbar, .dashboard-shell .topbar, .dashboard-shell .footer { background:var(--palette-black) !important; border-color:var(--palette-iron-light) !important; }
+.brand, .topbar .brand, .client-topbar .brand, .admin-topbar .brand, .footer .brand { color:var(--palette-white) !important; }
+.brand-mark { width:58px !important; height:40px !important; overflow:hidden; border:1px solid var(--palette-stone); border-radius:3px !important; background:var(--palette-white) !important; }
+.brand-mark img { display:block; width:100%; height:100%; object-fit:cover; }
+.login-mark { width:54px !important; height:42px !important; border:1px solid var(--palette-stone); border-radius:3px !important; background:var(--palette-white) !important; }
+.login-mark img { display:block; width:100%; height:100%; object-fit:cover; }
+.nav-links, .nav-links.nav-open { background:var(--palette-black) !important; }
+.client-nav.is-open, .admin-nav.is-open { background:var(--palette-black) !important; }
+.nav-links > a, .footer a, .footer button, .client-nav button, .admin-nav button, .client-menu-toggle, .admin-menu-toggle { color:var(--palette-white) !important; }
+.client-nav button.is-active, .admin-nav button.is-active { color:var(--palette-black) !important; border-color:var(--palette-walnut) !important; }
+.client-nav .client-logout, .admin-nav .admin-logout { border-color:var(--palette-grey) !important; }
+.plans-section, .ticker, .client-welcome, .admin-welcome { background:var(--palette-stone) !important; color:var(--palette-black) !important; }
+.plan-card, .client-admin-card, .exercise-admin-card, .session-admin-card, .profile-identity, .profile-metric, .profile-detail-card, .agenda-session, .agenda-empty, .routine-card, .client-review-card, .admin-review-card, .planning-section, .planning-section .planning-week, .review-form, .client-form, .admin-form, .dashboard-card, .measurements-list, .planning-week { background:var(--palette-white) !important; }
+.plan-featured, .closing-cta, .access-page, .week-day.is-selected, .button-dark { background:var(--palette-iron-grey) !important; color:var(--palette-white) !important; }
+.plan-featured h3, .plan-featured li, .plan-featured .plan-desc, .plan-featured .plan-top, .closing-cta h2, .closing-cta .section-kicker, .access-page h1, .access-page .section-kicker { color:var(--palette-white) !important; }
+.brand-mark, .login-mark, .button-primary, .button-primary:hover, .featured-label, .admin-avatar, .client-welcome-avatar, .profile-avatar, .admin-client-avatar, .exercise-admin-icon, .client-icon-badge, .routine-icon, .planning-section-heading > span { background-color:var(--palette-walnut) !important; color:var(--palette-white) !important; }
+.brand-mark, .login-mark { background-color:var(--palette-white) !important; }
+.button-primary, .button-primary:hover { background:var(--palette-walnut) !important; border-color:var(--palette-walnut) !important; color:var(--palette-white) !important; }
+.button-outline { border-color:var(--palette-iron-light) !important; color:var(--palette-black) !important; }
+.topbar .button-outline, .client-topbar .button-outline { color:var(--palette-white) !important; }
+.plan-badge, .category-tag, .routine-active, .session-status, .featured-counter, .week-day { background:var(--palette-coat-grey) !important; color:var(--palette-iron-grey) !important; }
+.plan-activo, .plan-programado, .plan-finalizado, .plan-sin_plan, .session-status.is-complete, .admin-notice, .review-notice { background:var(--palette-coat-grey) !important; color:var(--palette-iron-grey) !important; border-color:var(--palette-stone) !important; }
+.site-shell h1, .site-shell h2, .site-shell h3, .client-app h1, .client-app h2, .client-app h3, .admin-app h1, .admin-app h2, .admin-app h3, .dashboard-content h1, .dashboard-card strong { color:var(--palette-black) !important; }
+.site-shell p, .client-app p, .admin-app p, .client-app small, .admin-app small, .client-app label, .admin-app label { color:var(--palette-iron-light); }
+.site-shell .section-kicker, .client-app .client-kicker, .admin-app .admin-kicker, .site-shell .eyebrow, .site-shell .eyebrow span, .client-page-heading h1 em, .admin-page-heading h1 em, .routine-goal, .routine-agenda-link, .planning-add-inline, .planning-add-day, .plan-card li svg, .about-link svg, .review-stars, .admin-review-stars, .session-admin-date { color:var(--palette-walnut) !important; }
+.intro h2 span, .plans-heading h2 span, .about h2 em, .login-modal h2 em, .dashboard-content h1 em, .text-link span { color:var(--palette-sage) !important; }
+.client-topbar, .admin-topbar, .client-footer, .admin-footer, .profile-identity, .profile-metric, .profile-detail-card, .agenda-session, .agenda-exercise, .client-admin-card, .exercise-admin-card, .session-admin-card, .admin-review-card, .planning-section, .planning-week, .planning-day, .planning-add-day, .client-form, .admin-form, .review-form, .routine-card, .method-grid, .method-grid article + article, .plan-card ul, .dashboard-card { border-color:var(--palette-stone) !important; }
+.method-icon { color:var(--palette-olive-light) !important; border-color:var(--palette-stone) !important; }
+.topbar .nav-links > a:hover, .footer a:hover, .footer button:hover { color:var(--palette-olive-light) !important; }
+.admin-alert, .form-error, .client-error, .client-error-panel p, .review-limit-note { background:var(--palette-coat-grey) !important; color:var(--palette-iron-grey) !important; border-color:var(--palette-stone) !important; }
+.admin-search, .exercise-toolbar > select, .session-admin-actions select, .admin-form input, .admin-form select, .admin-form textarea, .planning-section input, .planning-section select, .client-input-wrap, .client-medical-label textarea, .review-form textarea, .review-form select, .login-modal input { background:var(--palette-white) !important; color:var(--palette-black) !important; border-color:var(--palette-stone) !important; }
+.admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus, .planning-section input:focus, .planning-section select:focus, .client-input-wrap:focus-within, .client-medical-label textarea:focus, .review-form textarea:focus, .login-modal input:focus { border-color:var(--palette-walnut) !important; box-shadow:0 0 0 3px #7F7F7433 !important; }
+.hero-shade { background:linear-gradient(90deg,rgba(52,51,49,.93) 0%,rgba(52,51,49,.73) 42%,rgba(52,51,49,.12) 100%),linear-gradient(0deg,rgba(52,51,49,.38),transparent 35%) !important; }
+.hero, .hero h1, .hero .text-link, .hero-proof, .hero-proof strong, .hero-stamp { color:var(--palette-white) !important; }
+.week-day.is-selected span, .week-day.is-selected strong { color:var(--palette-white) !important; }
+.modal-backdrop, .admin-modal-backdrop { background:rgba(52,51,49,.78) !important; }
+.admin-icon-danger, .exercise-admin-actions button.is-danger { color:var(--palette-iron-grey) !important; border-color:var(--palette-line) !important; }
+.client-terms input, .admin-app input[type='checkbox'] { accent-color:var(--palette-walnut) !important; }
+.plan-badge, .category-tag, .routine-active, .session-status, .featured-counter,
+.week-day:not(.is-selected), .agenda-day-heading > div > span { color:var(--palette-black) !important; }
+.footer > p, .footer small, .footer > div a, .footer > div button,
+.client-footer span, .admin-footer span { color:var(--palette-white) !important; }
+.admin-brand-tag { color:var(--palette-white) !important; }
+.topbar .button-outline, .client-topbar .button-outline { background:transparent !important; color:var(--palette-white) !important; border-color:var(--palette-grey) !important; }
+.hero .button-primary, .closing-cta .button-primary, .access-page .button-primary, .plan-featured .button-primary { background:var(--palette-white) !important; border-color:var(--palette-white) !important; color:var(--palette-black) !important; }
+.featured-label, .admin-avatar, .client-welcome-avatar, .profile-avatar,
+.admin-client-avatar, .exercise-admin-icon, .client-icon-badge, .routine-icon,
+.planning-section-heading > span { background:var(--palette-iron-grey) !important; color:var(--palette-white) !important; }
+.client-error-panel { background:var(--palette-white) !important; border-color:var(--palette-line) !important; }
+.hero .eyebrow { color:var(--palette-white) !important; }
+.hero h1 em, .hero .eyebrow, .hero .text-link { color:var(--palette-white) !important; }
+.hero-stamp svg { background:transparent !important; color:var(--palette-olive-light) !important; }
+.plan-dot, .eyebrow span { background:var(--palette-walnut) !important; color:var(--palette-walnut) !important; }
+.week-day span { background:transparent !important; }
+.button:disabled, .planning-add-inline:disabled, .planning-add-day:disabled { opacity:.55; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline-color:var(--palette-walnut) !important; }
+::selection { background:var(--palette-iron-grey) !important; color:var(--palette-white) !important; }
+
+/* High-contrast finishing pass across public, client and admin screens. */
+.plans-section, .client-welcome, .admin-welcome { background:var(--palette-white) !important; color:var(--palette-black) !important; }
+.ticker { background:var(--palette-iron-grey) !important; color:var(--palette-white) !important; }
+.plan-featured, .week-day.is-selected, .button-dark { background:var(--palette-iron-grey) !important; color:var(--palette-white) !important; }
+.closing-cta, .access-page { background:var(--palette-black) !important; color:var(--palette-white) !important; }
+.button-primary, .button-primary:hover { background:var(--palette-black) !important; border-color:var(--palette-black) !important; color:var(--palette-white) !important; }
+.client-nav button.is-active, .admin-nav button.is-active { background:var(--palette-white) !important; color:var(--palette-black) !important; border-color:var(--palette-walnut) !important; }
+.site-shell p, .client-app p, .admin-app p, .site-shell label, .client-app label, .admin-app label { color:var(--palette-black) !important; }
+.client-app small, .admin-app small { color:var(--palette-iron-grey) !important; }
+.site-shell .section-kicker, .client-app .client-kicker, .admin-app .admin-kicker,
+.client-page-heading h1 em, .admin-page-heading h1 em, .routine-goal,
+.routine-agenda-link, .planning-add-inline, .planning-add-day,
+.site-shell .about-pretitle, .admin-app .admin-result-count { color:var(--palette-iron-grey) !important; }
+.plan-card li svg, .about-link svg, .review-stars, .admin-review-stars,
+.site-shell .eyebrow span, .plan-dot { color:var(--palette-olive-light) !important; }
+.plan-featured h3, .plan-featured li, .plan-featured .plan-desc, .plan-featured .plan-top,
+.closing-cta h2, .closing-cta h2 em, .closing-cta .section-kicker,
+.access-page h1, .access-page h1 em, .access-page .section-kicker,
+.hero, .hero h1, .hero h1 em, .hero .hero-lead, .hero .text-link,
+.hero-proof, .hero-proof strong, .hero-stamp { color:var(--palette-white) !important; }
+.hero h1 em, .hero .text-link span, .closing-cta h2 em { color:var(--palette-olive-light) !important; }
+.ticker i { color:var(--palette-white) !important; }
+.admin-alert, .admin-notice, .form-error, .client-error, .client-error-panel p,
+.review-notice, .review-limit-note { background:var(--palette-white) !important; color:var(--palette-black) !important; border-color:var(--palette-stone) !important; }
+.site-shell input::placeholder, .client-app input::placeholder, .admin-app input::placeholder,
+.site-shell textarea::placeholder, .client-app textarea::placeholder, .admin-app textarea::placeholder { color:var(--palette-iron-grey) !important; opacity:1; }
+.admin-modal-backdrop, .modal-backdrop { background:rgba(52,51,49,.78) !important; }
+.client-error-panel { background:var(--palette-white) !important; color:var(--palette-black) !important; }
+.client-terms input, .admin-app input[type='checkbox'] { accent-color:var(--palette-walnut) !important; }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Activity, CalendarDays, LogOut, Menu, MessageSquareText, UserRound, X } from 'lucide-react'
 import { getClientProfile } from '../services/users.service'
+import brandIcon from '../assets/icon.png'
 import AgendaRoute from './client/AgendaRoute'
 import ProfileRoute from './client/ProfileRoute'
 import ProfileOnboardingRoute from './client/ProfileOnboardingRoute'
@@ -65,7 +66,7 @@ export default function ClienteRoutes({ onLogout }) {
   if (error) return <main className="client-loading"><div className="client-error-panel"><h1>No pudimos cargar tu espacio</h1><p>{error}</p><button className="button button-outline" onClick={onLogout}>Cerrar sesión</button></div></main>
 
   if (!isClientProfileComplete(profile)) {
-    return <main className="client-app client-onboarding-shell"><header className="client-topbar"><a className="brand" href="/cliente" onClick={(event) => { event.preventDefault(); navigate(onboardingPath) }}><span className="brand-mark"><Activity size={18} /></span><span>SANDRO<span className="brand-light">TRAINING</span></span></a><button className="button button-outline" onClick={onLogout}><LogOut size={15} /> Cerrar sesión</button></header><ProfileOnboardingRoute onComplete={(result) => { setProfile(result); navigate(tabs[0].path, true) }} /></main>
+    return <main className="client-app client-onboarding-shell"><header className="client-topbar"><a className="brand" href="/cliente" onClick={(event) => { event.preventDefault(); navigate(onboardingPath) }}><span className="brand-mark"><img src={brandIcon} alt="" /></span><span>TRIBU<span className="brand-light">FIT</span></span></a><button className="button button-outline" onClick={onLogout}><LogOut size={15} /> Cerrar sesión</button></header><ProfileOnboardingRoute onComplete={(result) => { setProfile(result); navigate(tabs[0].path, true) }} /></main>
   }
 
   const currentPath = path === '/cliente/rutinas' ? path : tabs.some((tab) => tab.path === path) ? path : tabs[0].path
@@ -80,9 +81,9 @@ export default function ClienteRoutes({ onLogout }) {
   if (currentPath === '/cliente/resenas') screen = <ReviewsRoute />
 
   return <main className="client-app">
-    <header className="client-topbar"><a className="brand" href="/cliente/agenda" onClick={(event) => { event.preventDefault(); navigate(tabs[0].path) }}><span className="brand-mark"><Activity size={18} /></span><span>SANDRO<span className="brand-light">TRAINING</span></span></a><button className="client-menu-toggle" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button><nav className={`client-nav${menuOpen ? ' is-open' : ''}`} aria-label="Navegación del cliente">{tabs.map(({ path: tabPath, label, icon: Icon }) => <button key={tabPath} className={currentPath === tabPath ? 'is-active' : ''} onClick={() => navigate(tabPath)}><Icon size={16} /><span>{label}</span></button>)}<button className="client-logout" onClick={onLogout}><LogOut size={16} /><span>Cerrar sesión</span></button></nav></header>
+    <header className="client-topbar"><a className="brand" href="/cliente/agenda" onClick={(event) => { event.preventDefault(); navigate(tabs[0].path) }}><span className="brand-mark"><img src={brandIcon} alt="" /></span><span>TRIBU<span className="brand-light">FIT</span></span></a><button className="client-menu-toggle" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button><nav className={`client-nav${menuOpen ? ' is-open' : ''}`} aria-label="Navegación del cliente">{tabs.map(({ path: tabPath, label, icon: Icon }) => <button key={tabPath} className={currentPath === tabPath ? 'is-active' : ''} onClick={() => navigate(tabPath)}><Icon size={16} /><span>{label}</span></button>)}<button className="client-logout" onClick={onLogout}><LogOut size={16} /><span>Cerrar sesión</span></button></nav></header>
     <div className="client-welcome"><div><span>HOLA, {profile.nombre?.split(' ')[0]?.toUpperCase()}</span><strong>{activeTab.label}</strong></div><div className="client-welcome-avatar">{profile.nombre?.charAt(0)?.toUpperCase() || 'A'}</div></div>
     <div className="client-content">{screen}</div>
-    <footer className="client-footer"><span>SANDRO TRAINING</span><span>Entrena con propósito.</span></footer>
+    <footer className="client-footer"><span>TRIBU FIT</span><span>Entrena con propósito.</span></footer>
   </main>
 }

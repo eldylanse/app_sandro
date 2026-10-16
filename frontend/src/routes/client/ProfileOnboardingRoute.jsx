@@ -36,7 +36,7 @@ export default function ProfileOnboardingRoute({ onComplete }) {
       <div className="client-onboarding-heading">
         <div className="client-icon-badge"><UserRound size={22} /></div>
         <h1>Empecemos por<br /><em>conocerte.</em></h1>
-        <p>Completa estos datos una sola vez para que Sandro pueda adaptar tu entrenamiento a ti.</p>
+        <p>Completa estos datos una sola vez para que tu preparador pueda adaptar el entrenamiento a ti.</p>
       </div>
       <form className="client-form" onSubmit={submit}>
         <div className="client-form-grid">
