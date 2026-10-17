@@ -226,14 +226,14 @@ body { color: var(--palette-black); }
 .homepage-reviews-heading h3 { margin: 15px 0 0; color: var(--palette-black); font: 700 clamp(24px, 2.3vw, 32px)/1.1 'Manrope', sans-serif; letter-spacing: -1.1px; }
 .reviews-direction { color: var(--palette-walnut); font-size: 24px; line-height: 1; }
 .review-marquee { overflow: hidden; margin-right: -1px; mask-image: linear-gradient(90deg, transparent, #000 5%, #000 94%, transparent); }
-.review-marquee-track { display: flex; width: max-content; gap: 14px; animation: reviews-move-right 10s linear infinite; }
+.review-marquee-track { display: flex; width: max-content; gap: 14px; animation: reviews-move-left 10s linear infinite; }
 .review-marquee:hover .review-marquee-track, .review-marquee:focus-within .review-marquee-track { animation-play-state: paused; }
 .homepage-review-card { width: clamp(220px, 24vw, 285px); min-height: 198px; padding: 21px; display: flex; flex-direction: column; align-items: flex-start; background: var(--palette-white); border: 1px solid var(--palette-line); }
 .homepage-review-stars { display: flex; gap: 3px; color: var(--palette-walnut); }
 .homepage-review-card > p { color: var(--palette-iron-grey); font-size: 14px !important; line-height: 1.7; margin: 17px 0 19px; }
 .homepage-review-card > strong { color: var(--palette-black); font-size: 12px; margin-top: auto; }
 .homepage-reviews-empty { color: var(--palette-iron-grey); font-size: 14px !important; line-height: 1.7; }
-@keyframes reviews-move-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+@keyframes reviews-move-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 button:focus-visible, a:focus-visible, input:focus-visible,
 select:focus-visible, textarea:focus-visible { outline: 2px solid var(--palette-iron-grey) !important; outline-offset: 3px; }
@@ -245,3 +245,67 @@ select:focus-visible, textarea:focus-visible { outline: 2px solid var(--palette-
   .homepage-review-card { width: min(285px, 76vw); }
 }
 @media (prefers-reduced-motion: reduce) { .review-marquee-track { animation: none; transform: none; } }
+
+/* Final presentation refinements requested for the public and admin screens. */
+.brand-mark, .login-mark {
+  width: 68px !important;
+  height: 46px !important;
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.brand-mark img, .login-mark img { object-fit: contain; }
+.plans-grid { justify-content: center; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.plans-grid .plan-card { display: flex; flex-direction: column; text-align: left; }
+.plans-grid .plan-card h3 { min-height: 68px; display: flex; align-items: center; line-height: 1.15; }
+.plans-grid .plan-card .plan-desc { min-height: 75px; }
+.plans-grid .plan-card ul { flex: 1; align-content: start; }
+.plans-grid .plan-prices { margin-top: auto; }
+.site-shell .plans-grid .plan-featured { order: 0; background: var(--palette-white) !important; color: var(--palette-black) !important; border-color: var(--palette-line) !important; }
+.site-shell .plans-grid .plan-featured h3, .site-shell .plans-grid .plan-featured .plan-top,
+.site-shell .plans-grid .plan-featured .plan-desc, .site-shell .plans-grid .plan-featured li,
+.site-shell .plans-grid .plan-featured li svg { color: var(--palette-black) !important; }
+.site-shell .plans-grid .plan-featured .plan-prices { border-color: var(--palette-line); }
+.site-shell .plans-grid .plan-featured .plan-price-row { color: var(--palette-iron-grey); }
+.site-shell .plans-grid .plan-featured .plan-price-row + .plan-price-row { border-color: #e9e7e5; }
+.site-shell .plans-grid .plan-featured .plan-price-row strong { color: var(--palette-black); }
+.site-shell .plans-grid .plan-featured .button-primary { background: var(--palette-black) !important; border-color: var(--palette-black) !important; color: var(--palette-white) !important; }
+.planning-library-summary { margin-top: 12px; }
+@media (max-width: 1050px) {
+  .plans-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plans-grid .plan-featured { grid-column: 1 / -1; width: calc((100% - 18px) / 2); justify-self: center; }
+}
+@media (max-width: 680px) {
+  .plans-grid { grid-template-columns: 1fr; }
+  .plans-grid .plan-featured { grid-column: auto; width: 100%; }
+  .plans-grid .plan-card h3 { min-height: 0; }
+  .plans-grid .plan-card .plan-desc { min-height: 0; }
+}
+
+/* Light navigation makes the dark, rectangular logo and wordmark stand out. */
+.topbar, .client-topbar, .admin-topbar, .dashboard-shell .topbar {
+  background: var(--palette-white) !important;
+  border-color: var(--palette-line) !important;
+}
+.topbar .brand, .client-topbar .brand, .admin-topbar .brand,
+.topbar .nav-links > a, .client-nav button, .admin-nav button,
+.client-menu-toggle, .admin-menu-toggle { color: var(--palette-black) !important; }
+.nav-links, .nav-links.nav-open, .client-nav.is-open, .admin-nav.is-open {
+  background: var(--palette-white) !important;
+}
+.topbar .nav-links > a:hover { color: var(--palette-iron-grey) !important; }
+.client-nav button.is-active, .admin-nav button.is-active,
+.client-nav button[aria-current='page'], .admin-nav button[aria-current='page'] {
+  background: var(--palette-coat-grey) !important;
+  color: var(--palette-black) !important;
+  border-color: var(--palette-iron-grey) !important;
+}
+.client-nav .client-logout, .admin-nav .admin-logout,
+.topbar .button-outline, .client-topbar .button-outline {
+  color: var(--palette-black) !important;
+  border-color: var(--palette-stone) !important;
+}
+.topbar .button-outline, .client-topbar .button-outline { background: var(--palette-white) !important; }
+.plans-grid .plan-featured .plan-top { padding-top: 0; }
+.plans-grid .plan-featured .plan-top > span:first-child { max-width: calc(100% - 18px); font-size: 7px; letter-spacing: .65px; line-height: 1.4; white-space: nowrap; }
