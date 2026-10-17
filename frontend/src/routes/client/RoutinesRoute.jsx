@@ -8,6 +8,13 @@ function shortDate(value) {
   return Number.isNaN(date.getTime()) ? 'Fecha pendiente' : new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }).format(date)
 }
 
+function plannedGoal(exercise) {
+  if (exercise.tipo_objetivo !== 'tiempo') return exercise.repeticiones_planificadas || 'Según indicación'
+  const seconds = Number(exercise.tiempo_segundos)
+  if (!Number.isFinite(seconds) || seconds < 1) return 'Según indicación'
+  return seconds >= 60 ? `${Math.floor(seconds / 60)} min${seconds % 60 ? ` ${seconds % 60} s` : ''}` : `${seconds} s`
+}
+
 function localDate(value) {
   if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
     const [year, month, day] = value.slice(0, 10).split('-').map(Number)
@@ -90,7 +97,7 @@ export default function RoutinesRoute({ onBackToAgenda }) {
         const embedUrl = youtubeEmbedUrl(exercise.url_video)
         return <article className="routine-exercise-card" key={`${exercise._id || index}-${index}`}>
           <div className="routine-exercise-info"><div className="routine-exercise-number">{String(index + 1).padStart(2, '0')}</div><div className="routine-exercise-title"><span>{exercise.categoria || 'EJERCICIO'}</span><h3>{exercise.nombre || 'Ejercicio'}</h3><p>{exercise.descripcion || 'Sigue las indicaciones de tu preparador y mantén una técnica controlada.'}</p></div></div>
-          <div className="routine-exercise-metrics"><div><span>SERIES</span><strong>{plannedExercise.series_planificadas || '—'}</strong></div><div><span>REPETICIONES</span><strong>{plannedExercise.repeticiones_planificadas || 'Según indicación'}</strong></div></div>
+          <div className="routine-exercise-metrics"><div><span>SERIES</span><strong>{plannedExercise.series_planificadas || '—'}</strong></div><div><span>{plannedExercise.tipo_objetivo === 'tiempo' ? 'TIEMPO' : 'REPETICIONES'}</span><strong>{plannedGoal(plannedExercise)}</strong></div></div>
           {embedUrl ? <div className="routine-video"><div className="routine-video-label"><Play size={15} /> VIDEO DEMOSTRATIVO</div><div className="routine-video-frame"><iframe src={embedUrl} title={`Video de ${exercise.nombre || 'ejercicio'}`} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div></div> : exercise.url_video ? <p className="routine-video-unavailable">El enlace de video no es una URL válida de YouTube.</p> : null}
         </article>
       })}</div>

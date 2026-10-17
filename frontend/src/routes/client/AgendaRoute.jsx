@@ -27,6 +27,13 @@ function exerciseName(exercise) {
   return typeof data === 'object' && data !== null ? data.nombre : 'Ejercicio'
 }
 
+function plannedGoal(exercise) {
+  if (exercise.tipo_objetivo !== 'tiempo') return `${exercise.repeticiones_planificadas || 'Repeticiones según indicación'} rep.`
+  const seconds = Number(exercise.tiempo_segundos)
+  if (!Number.isFinite(seconds) || seconds < 1) return 'Tiempo según indicación'
+  return seconds >= 60 ? `${Math.floor(seconds / 60)} min${seconds % 60 ? ` ${seconds % 60} s` : ''}` : `${seconds} s`
+}
+
 export default function AgendaRoute({ onOpenRoutine }) {
   const [plannings, setPlannings] = useState([])
   const [week, setWeek] = useState(() => weekStart(new Date()))
@@ -99,7 +106,7 @@ export default function AgendaRoute({ onOpenRoutine }) {
           <button className="agenda-session-open" onClick={openRoutine} aria-label={`Abrir ${planning.nombre}, semana ${weekNumber}`}>
             <div className="agenda-session-top"><div><span className="client-kicker">SEMANA {weekNumber}</span><h3>{planning.nombre}</h3><p>{planning.objetivo}</p></div><span className={`session-status${day.finalizado ? ' is-complete' : ''}`}>{day.finalizado ? <><Check size={13} /> Completado</> : 'Planificado'}</span></div>
           </button>
-          <div className="agenda-exercises">{(day.ejercicios || []).map((exercise, index) => <button className="agenda-exercise" key={`${exercise.id_ejercicio?._id || index}-${index}`} onClick={openRoutine} aria-label={`Ver rutina: ${exerciseName(exercise)}`}><span className="exercise-index">{String(index + 1).padStart(2, '0')}</span><div><strong>{exerciseName(exercise)}</strong><small>{exercise.series_planificadas || '—'} series · {exercise.repeticiones_planificadas || 'Repeticiones según indicación'}</small></div><span className="agenda-exercise-hint">Ver rutina ↗</span></button>)}</div>
+          <div className="agenda-exercises">{(day.ejercicios || []).map((exercise, index) => <button className="agenda-exercise" key={`${exercise.id_ejercicio?._id || index}-${index}`} onClick={openRoutine} aria-label={`Ver rutina: ${exerciseName(exercise)}`}><span className="exercise-index">{String(index + 1).padStart(2, '0')}</span><div><strong>{exerciseName(exercise)}</strong><small>{exercise.series_planificadas || '—'} series · {plannedGoal(exercise)}</small></div><span className="agenda-exercise-hint">Ver rutina ↗</span></button>)}</div>
         </article>
       })}
     </section>

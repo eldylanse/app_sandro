@@ -42,7 +42,13 @@ const planningSchema = new mongoose.Schema(
                   required: true,
                 },
                 series_planificadas: { type: Number },
+                tipo_objetivo: { type: String, enum: ["repeticiones", "tiempo"], default: "repeticiones" },
                 repeticiones_planificadas: { type: String }, // Ej: "10-12"
+                tiempo_segundos: {
+                  type: Number,
+                  min: 1,
+                  required: function () { return this.tipo_objetivo === "tiempo"; },
+                },
                 
                 // Historial de rendimiento real del cliente:
                 historial_rendimiento: [

@@ -9,6 +9,23 @@ import { ACCESS_JWT_SECRET, REFRESH_JWT_SECRET } from "../config/configEnv.js";
 export const registerService = async (body) => {
   const { nombre, email, password, celular, fecha_inicio_plan, fecha_termino_plan } = body;
 
+  const normalizedName = String(nombre || "").trim();
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const rawPhone = String(celular || "").trim();
+  const phoneCharactersValid = /^[+\d\s()-]+$/.test(rawPhone);
+  const phoneCompact = rawPhone.replace(/[\s()-]/g, "");
+  const phoneNational = phoneCompact.replace(/^\+?56/, "");
+
+  if (!/^\p{L}+(?:\s+\p{L}+)*$/u.test(normalizedName)) {
+    throw new Error("El nombre solo puede contener letras y espacios.");
+  }
+  if (!/^[^\s@]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.com$/i.test(normalizedEmail)) {
+    throw new Error("Ingresa un correo válido que termine en .com.");
+  }
+  if (!phoneCharactersValid || !/^9\d{8}$/.test(phoneNational)) {
+    throw new Error("Ingresa un celular chileno válido: 9 dígitos, con o sin el prefijo +56.");
+  }
+
   const startDate = new Date(fecha_inicio_plan);
   const endDate = new Date(fecha_termino_plan);
   if (!fecha_inicio_plan || Number.isNaN(startDate.getTime()) || !fecha_termino_plan || Number.isNaN(endDate.getTime())) {
@@ -18,7 +35,7 @@ export const registerService = async (body) => {
     throw new Error("La fecha de término del plan no puede ser anterior a la fecha de inicio.");
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     throw new Error("El correo electrónico ya se encuentra registrado.");
   }
@@ -37,11 +54,11 @@ export const registerService = async (body) => {
   };
 
   const newUser = new User({
-    nombre,
-    email,
+    nombre: normalizedName,
+    email: normalizedEmail,
     password: hashedPassword,
     role: "cliente",
-    celular,
+    celular: `+56${phoneNational}`,
     perfilCliente: clientProfileData,
     
   });

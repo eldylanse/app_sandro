@@ -91,6 +91,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      match: [/^\p{L}+(?:\s+\p{L}+)*$/u, "El nombre solo puede contener letras y espacios."],
     },
     email: {
       type: String,
@@ -98,6 +99,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      match: [/^[^\s@]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.com$/i, "Ingresa un correo válido que termine en .com."],
     },
     password: {
       type: String,
@@ -113,6 +115,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      match: [/^\+569\d{8}$/, "Ingresa un celular chileno válido con prefijo +56 y 9 dígitos."],
     },
     perfilCliente: {
       type: perfilClienteSchema,

@@ -3,8 +3,28 @@
 import Planning from "../models/planning.model.js";
 import User from "../models/user.model.js";
 
+const validateExerciseGoals = (data) => {
+  for (const week of data.microciclos || []) {
+    for (const day of week.dias_entrenamiento || []) {
+      for (const exercise of day.ejercicios || []) {
+        const type = exercise.tipo_objetivo || "repeticiones";
+        if (type === "tiempo" && (!Number.isFinite(Number(exercise.tiempo_segundos)) || Number(exercise.tiempo_segundos) < 1)) {
+          throw new Error("Los ejercicios por tiempo deben tener una duración de al menos 1 segundo.");
+        }
+        if (type === "repeticiones" && !String(exercise.repeticiones_planificadas || "").trim()) {
+          throw new Error("Indica las repeticiones planificadas para cada ejercicio.");
+        }
+        if (!["repeticiones", "tiempo"].includes(type)) {
+          throw new Error("El tipo de objetivo del ejercicio no es válido.");
+        }
+      }
+    }
+  }
+};
+
 // 1. Crear una planificación
 export const createPlanningService = async (data) => {
+  validateExerciseGoals(data);
   const client = await User.findOne({ _id: data.id_cliente, role: "cliente" }).select("_id");
   if (!client) throw new Error("Selecciona un cliente válido para la planificación.");
   const newPlanning = new Planning(data);
@@ -12,6 +32,7 @@ export const createPlanningService = async (data) => {
 };
 
 export const updatePlanningService = async (planningId, data) => {
+  validateExerciseGoals(data);
   const planning = await Planning.findById(planningId);
   if (!planning) throw new Error("Planificación no encontrada.");
 

@@ -309,3 +309,14 @@ select:focus-visible, textarea:focus-visible { outline: 2px solid var(--palette-
 .topbar .button-outline, .client-topbar .button-outline { background: var(--palette-white) !important; }
 .plans-grid .plan-featured .plan-top { padding-top: 0; }
 .plans-grid .plan-featured .plan-top > span:first-child { max-width: calc(100% - 18px); font-size: 7px; letter-spacing: .65px; line-height: 1.4; white-space: nowrap; }
+.login-password-field{position:relative;width:100%;margin-bottom:16px}
+.login-modal .login-password-field input{display:block;width:100%;height:43px;margin:0!important;padding-right:46px!important}
+.login-password-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:grid;place-items:center;padding:0;border:0;border-radius:3px;background:transparent;color:var(--palette-iron-grey);cursor:pointer}
+.login-password-toggle:hover{background:var(--palette-coat-grey)}
+.contact-modal{position:relative;width:min(470px,100%);padding:38px;background:var(--palette-white);color:var(--palette-black);box-shadow:0 24px 80px #0003}
+.contact-modal h2{margin:12px 0;color:var(--palette-black);font-family:'Manrope',sans-serif;font-size:clamp(28px,5vw,38px);line-height:1.1}
+.contact-modal h2 em{color:var(--palette-walnut);font-family:Georgia,serif;font-weight:400}
+.contact-modal>p:not(.section-kicker){margin:14px 0 23px;color:var(--palette-iron-grey);font-size:15px;line-height:1.65}
+.contact-whatsapp-button{width:100%;justify-content:center}
+.contact-email-link{display:block;margin-top:17px;color:var(--palette-iron-grey);font-size:13px;text-align:center;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:520px){.contact-modal{padding:30px 24px}.contact-modal>p:not(.section-kicker){font-size:14px}}
