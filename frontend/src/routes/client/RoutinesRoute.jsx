@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, CalendarDays, Check, Dumbbell, Play, RotateCcw, Target } from 'lucide-react'
-import { getPlannings, updateTrainingDayStatus } from '../../services/plannings.service'
+import { getPlannings, getTrainingDaySurvey, saveTrainingDaySurvey, updateTrainingDayStatus } from '../../services/plannings.service'
+
+const surveyExertionLevels = [
+  { value: 1, label: 'Muy baja' },
+  { value: 2, label: 'Baja' },
+  { value: 3, label: 'Adecuada' },
+  { value: 4, label: 'Alta' },
+  { value: 5, label: 'Muy alta' },
+]
+
+const emptySurvey = { nivel_exigencia: '', tuvo_molestia: '', detalle_molestia: '', comentarios_adicionales: '' }
 
 function shortDate(value) {
   if (!value) return 'Fecha pendiente'
@@ -45,6 +55,12 @@ export default function RoutinesRoute({ onBackToAgenda }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [savingStatus, setSavingStatus] = useState(false)
+  const [closeoutOpen, setCloseoutOpen] = useState(false)
+  const [survey, setSurvey] = useState(emptySurvey)
+  const [loadingSurvey, setLoadingSurvey] = useState(false)
+  const [savingSurvey, setSavingSurvey] = useState(false)
+  const [surveyMessage, setSurveyMessage] = useState('')
+  const [surveyError, setSurveyError] = useState('')
   const params = new URLSearchParams(window.location.search)
   const selectedPlanningId = params.get('planning')
   const selectedCycleIndex = Number(params.get('cycle'))
@@ -64,18 +80,79 @@ export default function RoutinesRoute({ onBackToAgenda }) {
   const selectedDay = Number.isInteger(selectedDayIndex) ? selectedCycle?.dias_entrenamiento?.[selectedDayIndex] : null
   const selectedDate = selectedDay?.fecha ? new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }).format(localDate(selectedDay.fecha)) : ''
 
-  async function toggleDayStatus() {
-    if (!selectedPlanning || !selectedDay || savingStatus) return
+  useEffect(() => {
+    if (!selectedPlanning?._id || !selectedDay?._id) return
+    let active = true
+    setCloseoutOpen(false)
+    setLoadingSurvey(true)
+    setSurveyError('')
+    setSurveyMessage('')
+    getTrainingDaySurvey(selectedPlanning._id, selectedDay._id)
+      .then(({ survey: savedSurvey }) => {
+        if (active) setSurvey(savedSurvey ? {
+          nivel_exigencia: String(savedSurvey.nivel_exigencia),
+          tuvo_molestia: String(savedSurvey.tuvo_molestia),
+          detalle_molestia: savedSurvey.detalle_molestia || '',
+          comentarios_adicionales: savedSurvey.comentarios_adicionales || '',
+        } : emptySurvey)
+      })
+      .catch((requestError) => { if (active) setSurveyError(requestError.response?.data?.message || 'No se pudo cargar la encuesta de este día.') })
+      .finally(() => { if (active) setLoadingSurvey(false) })
+    return () => { active = false }
+  }, [selectedPlanning?._id, selectedDay?._id])
+
+  async function submitSurvey(event) {
+    event.preventDefault()
+    if (!selectedPlanning?._id || !selectedDay?._id || savingSurvey || savingStatus) return
+    if (!survey.nivel_exigencia || survey.tuvo_molestia === '' || !survey.comentarios_adicionales.trim() || (survey.tuvo_molestia === 'true' && !survey.detalle_molestia.trim())) {
+      setSurveyError('Completa todas las respuestas para cerrar tu sesión.')
+      return
+    }
+    setSavingSurvey(true)
     setSavingStatus(true)
-    setError('')
-    const finalizado = !selectedDay.finalizado
+    setSurveyMessage('')
+    setSurveyError('')
     try {
-      await updateTrainingDayStatus(selectedPlanning._id, { microcicloIndex: selectedCycleIndex, diaIndex: selectedDayIndex, finalizado })
+      const { survey: savedSurvey } = await saveTrainingDaySurvey(selectedPlanning._id, selectedDay._id, {
+        ...survey,
+        nivel_exigencia: Number(survey.nivel_exigencia),
+        tuvo_molestia: survey.tuvo_molestia === 'true',
+      })
+      await updateTrainingDayStatus(selectedPlanning._id, { microcicloIndex: selectedCycleIndex, diaIndex: selectedDayIndex, finalizado: true })
+      setSurvey({
+        nivel_exigencia: String(savedSurvey.nivel_exigencia),
+        tuvo_molestia: String(savedSurvey.tuvo_molestia),
+        detalle_molestia: savedSurvey.detalle_molestia || '',
+        comentarios_adicionales: savedSurvey.comentarios_adicionales || '',
+      })
       setPlannings((current) => current.map((planning) => planning._id !== selectedPlanning._id ? planning : {
         ...planning,
         microciclos: planning.microciclos.map((cycle, cycleIndex) => cycleIndex !== selectedCycleIndex ? cycle : {
           ...cycle,
-          dias_entrenamiento: cycle.dias_entrenamiento.map((day, dayIndex) => dayIndex !== selectedDayIndex ? day : { ...day, finalizado }),
+          dias_entrenamiento: cycle.dias_entrenamiento.map((day, dayIndex) => dayIndex !== selectedDayIndex ? day : { ...day, finalizado: true }),
+        }),
+      }))
+      setCloseoutOpen(false)
+      setSurveyMessage('Encuesta enviada y sesión marcada como completada.')
+    } catch (requestError) {
+      setSurveyError(requestError.response?.data?.message || 'No se pudo enviar la encuesta ni completar la sesión. Revisa tus respuestas e inténtalo nuevamente.')
+    } finally {
+      setSavingSurvey(false)
+      setSavingStatus(false)
+    }
+  }
+
+  async function undoDayCompletion() {
+    if (!selectedPlanning || !selectedDay?.finalizado || savingStatus) return
+    setSavingStatus(true)
+    setError('')
+    try {
+      await updateTrainingDayStatus(selectedPlanning._id, { microcicloIndex: selectedCycleIndex, diaIndex: selectedDayIndex, finalizado: false })
+      setPlannings((current) => current.map((planning) => planning._id !== selectedPlanning._id ? planning : {
+        ...planning,
+        microciclos: planning.microciclos.map((cycle, cycleIndex) => cycleIndex !== selectedCycleIndex ? cycle : {
+          ...cycle,
+          dias_entrenamiento: cycle.dias_entrenamiento.map((day, dayIndex) => dayIndex !== selectedDayIndex ? day : { ...day, finalizado: false }),
         }),
       }))
     } catch (requestError) {
@@ -91,7 +168,7 @@ export default function RoutinesRoute({ onBackToAgenda }) {
     {error && <div className="client-state client-error">{error}</div>}
     {!loading && !error && selectedPlanning && selectedDay && <>
       <button type="button" className="routine-back-link" onClick={onBackToAgenda}> <ArrowLeft size={16} /> Volver a la agenda</button>
-      <header className="routine-day-header"><div className="routine-icon"><Dumbbell size={19} /></div><div><span>SEMANA {selectedCycle.numero_semana} · {selectedDate}</span><h2>{selectedPlanning.nombre}</h2><p><Target size={15} /> {selectedPlanning.objetivo}</p></div><span className={`session-status${selectedDay.finalizado ? ' is-complete' : ''}`}>{selectedDay.finalizado ? 'Completado' : 'Planificado'}</span><button className="routine-completion-button" type="button" onClick={toggleDayStatus} disabled={savingStatus}>{selectedDay.finalizado ? <RotateCcw size={15} /> : <Check size={15} />}{savingStatus ? 'Guardando…' : selectedDay.finalizado ? 'Deshacer' : 'Marcar completado'}</button></header>
+      <header className="routine-day-header"><div className="routine-icon"><Dumbbell size={19} /></div><div><span>SEMANA {selectedCycle.numero_semana} · {selectedDate}</span><h2>{selectedPlanning.nombre}</h2><p><Target size={15} /> {selectedPlanning.objetivo}</p></div><span className={`session-status${selectedDay.finalizado ? ' is-complete' : ''}`}>{selectedDay.finalizado ? 'Completado' : 'Planificado'}</span></header>
       <div className="routine-exercise-list">{(selectedDay.ejercicios || []).map((plannedExercise, index) => {
         const exercise = plannedExercise.id_ejercicio && typeof plannedExercise.id_ejercicio === 'object' ? plannedExercise.id_ejercicio : {}
         const embedUrl = youtubeEmbedUrl(exercise.url_video)
@@ -101,6 +178,8 @@ export default function RoutinesRoute({ onBackToAgenda }) {
           {embedUrl ? <div className="routine-video"><div className="routine-video-label"><Play size={15} /> VIDEO DEMOSTRATIVO</div><div className="routine-video-frame"><iframe src={embedUrl} title={`Video de ${exercise.nombre || 'ejercicio'}`} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div></div> : exercise.url_video ? <p className="routine-video-unavailable">El enlace de video no es una URL válida de YouTube.</p> : null}
         </article>
       })}</div>
+      {!selectedDay.finalizado && !closeoutOpen && <div className="routine-closeout-actions"><p>¿Terminaste todos los ejercicios de esta sesión?</p><button className="routine-completion-button" type="button" onClick={() => { setSurveyError(''); setCloseoutOpen(true) }}><Check size={15} />Marcar completado</button></div>}{selectedDay.finalizado && <div className="routine-closeout-actions is-complete">{surveyMessage && <p role="status">{surveyMessage}</p>}<button className="routine-completion-button" type="button" onClick={undoDayCompletion} disabled={savingStatus}><RotateCcw size={15} />{savingStatus ? 'Actualizando…' : 'Deshacer completado'}</button></div>}
+      {closeoutOpen && !selectedDay.finalizado && <section className="training-day-survey"><div className="training-day-survey-heading"><span>CIERRE DE TU SESIÓN</span><h2>¿Cómo te sentiste entrenando?</h2><p>Tu respuesta ayuda a tu preparador a ajustar la planificación.</p></div>{loadingSurvey ? <p className="survey-status">Cargando tu encuesta…</p> : <form onSubmit={submitSurvey}><fieldset className="survey-fieldset"><legend>¿Qué nivel de exigencia tuvo la sesión?</legend><div className="survey-exertion-options">{surveyExertionLevels.map(({ value, label }) => <label className={survey.nivel_exigencia === String(value) ? 'is-selected' : ''} key={value}><input type="radio" name="nivel_exigencia" value={value} checked={survey.nivel_exigencia === String(value)} onChange={(event) => setSurvey((current) => ({ ...current, nivel_exigencia: event.target.value }))} required /><span>{label}</span></label>)}</div></fieldset><fieldset className="survey-fieldset"><legend>¿Tuviste alguna molestia?</legend><div className="survey-choice-options"><label><input type="radio" name="tuvo_molestia" value="false" checked={survey.tuvo_molestia === 'false'} onChange={() => setSurvey((current) => ({ ...current, tuvo_molestia: 'false' }))} required /><span>No</span></label><label><input type="radio" name="tuvo_molestia" value="true" checked={survey.tuvo_molestia === 'true'} onChange={() => setSurvey((current) => ({ ...current, tuvo_molestia: 'true' }))} required /><span>Sí</span></label></div>{survey.tuvo_molestia === 'true' && <label className="survey-text-field">Cuéntanos brevemente qué molestia tuviste<textarea value={survey.detalle_molestia} onChange={(event) => setSurvey((current) => ({ ...current, detalle_molestia: event.target.value }))} maxLength={1000} rows={3} required placeholder="Zona del cuerpo, movimiento o momento en que apareció…" /></label>}</fieldset><label className="survey-text-field">Comentarios adicionales<textarea value={survey.comentarios_adicionales} onChange={(event) => setSurvey((current) => ({ ...current, comentarios_adicionales: event.target.value }))} maxLength={2000} rows={4} placeholder="Si no tienes algo más que agregar, escribe: Sin comentarios." required /></label><div className="survey-footer">{surveyError && <p className="survey-feedback is-error" role="alert">{surveyError}</p>}{surveyMessage && <p className="survey-feedback" role="status">{surveyMessage}</p>}<button className="survey-cancel" type="button" onClick={() => setCloseoutOpen(false)} disabled={savingSurvey}>Volver a los ejercicios</button><button className="button button-primary" type="submit" disabled={savingSurvey || savingStatus}>{savingSurvey || savingStatus ? 'Enviando cierre…' : 'Enviar y marcar completado'}</button></div></form>}</section>}
       {(selectedDay.ejercicios || []).length === 0 && <div className="agenda-empty"><Dumbbell size={20} /><strong>Esta sesión no tiene ejercicios</strong><p>Consulta con tu preparador si esperabas ver una rutina aquí.</p></div>}
     </>}
     {!loading && !error && selectedPlanning && !selectedDay && <div className="client-state client-error">No encontramos ese día dentro de la planificación. Vuelve a la agenda y selecciona la sesión nuevamente.</div>}

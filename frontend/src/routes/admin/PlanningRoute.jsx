@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, CalendarDays, CalendarPlus, Check, Copy, Dumbbell, Edit3, Plus, Search, Target, Trash2, UsersRound, X } from 'lucide-react'
+import { ArrowLeft, CalendarDays, CalendarPlus, Check, ClipboardList, Copy, Dumbbell, Edit3, Plus, Search, Target, Trash2, UsersRound, X } from 'lucide-react'
 import { getExercises } from '../../services/exercises.service'
-import { createPlanning, deletePlanning, getPlannings, updatePlanning } from '../../services/plannings.service'
+import { createPlanning, deletePlanning, getPlanningSurveys, getPlannings, updatePlanning } from '../../services/plannings.service'
 import { getClients } from '../../services/users.service'
+import './planning-surveys.css'
 
 function todayInput() {
   const today = new Date()
@@ -74,6 +75,11 @@ export default function PlanningRoute() {
   const [deletingPlanningId, setDeletingPlanningId] = useState(null)
   const [editorOpen, setEditorOpen] = useState(false)
   const [form, setForm] = useState(() => freshForm())
+  const [surveyModalPlanning, setSurveyModalPlanning] = useState(null)
+  const [surveyModalDay, setSurveyModalDay] = useState(null)
+  const [planningSurveys, setPlanningSurveys] = useState([])
+  const [loadingPlanningSurveys, setLoadingPlanningSurveys] = useState(false)
+  const [planningSurveyError, setPlanningSurveyError] = useState('')
 
   const exerciseCategories = useMemo(() => [...new Set(exercises.map((exercise) => exercise.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es')), [exercises])
   const visibleExercises = useMemo(
@@ -106,6 +112,22 @@ export default function PlanningRoute() {
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [])
+
+  useEffect(() => {
+    if (!surveyModalPlanning || !surveyModalDay) return undefined
+    let active = true
+    setLoadingPlanningSurveys(true)
+    setPlanningSurveyError('')
+    setPlanningSurveys([])
+    getPlanningSurveys(surveyModalPlanning._id)
+      .then((response) => {
+        if (!active) return
+        setPlanningSurveys((response.surveys || []).filter((survey) => survey.id_dia_entrenamiento === surveyModalDay._id))
+      })
+      .catch((requestError) => { if (active) setPlanningSurveyError(requestError.response?.data?.message || 'No se pudieron cargar las respuestas de esta planificación.') })
+      .finally(() => { if (active) setLoadingPlanningSurveys(false) })
+    return () => { active = false }
+  }, [surveyModalPlanning, surveyModalDay])
 
   function openNewPlanning() {
     setEditingPlanningId(null)
@@ -296,9 +318,26 @@ export default function PlanningRoute() {
         return <article className="planning-library-card" key={planning._id}>
           <div className="planning-library-card-heading"><div><span><UsersRound size={13} />{clientName}</span><h2>{planning.nombre}</h2><p><Target size={13} />{planning.objetivo}</p></div><div className="planning-library-actions"><button className="button button-outline" type="button" onClick={() => openEditPlanning(planning)}><Edit3 size={14} />Editar plan</button><button className="admin-icon-danger planning-delete-button" type="button" aria-label={`Eliminar planificación ${planning.nombre}`} title="Eliminar planificación" disabled={deletingPlanningId === planning._id} onClick={() => removePlanning(planning, clientName)}><Trash2 size={15} /></button></div></div>
           <div className="planning-library-summary"><span>{planning.microciclos?.length || 0} semanas</span><span>{days.length} días</span><span>{exerciseCount} ejercicios</span><span>{displayDate(planning.fecha_inicio, { day: 'numeric', month: 'short', year: 'numeric' })} – {displayDate(planning.fecha_termino, { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
-          <div className="planning-library-weeks">{(planning.microciclos || []).map((week, weekIndex) => <details className="planning-library-week" key={`${planning._id}-week-${weekIndex}`} open={weekIndex === 0}><summary><span>Semana {week.numero_semana}</span><small>{week.dias_entrenamiento?.length || 0} días</small></summary><div>{(week.dias_entrenamiento || []).map((day, dayIndex) => <div className="planning-library-day" key={`${planning._id}-${weekIndex}-${dayIndex}`}><span className={`planning-library-day-icon${day.ejercicios?.length ? ' has-exercises' : ''}`}>{day.finalizado ? <Check size={13} /> : <CalendarDays size={13} />}</span><div><strong>{displayDate(day.fecha)}</strong><p>{(day.ejercicios || []).map((exercise) => exercise.id_ejercicio?.nombre || 'Ejercicio').join(' · ') || 'Sin ejercicios asignados'}</p></div><small>{day.finalizado ? 'Completado' : `${day.ejercicios?.length || 0} ejercicios`}</small></div>)}</div></details>)}</div>
+          <div className="planning-library-weeks">{(planning.microciclos || []).map((week, weekIndex) => <details className="planning-library-week" key={`${planning._id}-week-${weekIndex}`}><summary><span>Semana {week.numero_semana}</span><small>{week.dias_entrenamiento?.length || 0} días</small></summary><div className="planning-library-week-days">{(week.dias_entrenamiento || []).map((day, dayIndex) => <details className="planning-library-day-details" key={`${planning._id}-${weekIndex}-${dayIndex}`}><summary className="planning-library-day"><span className={`planning-library-day-icon${day.ejercicios?.length ? ' has-exercises' : ''}`}>{day.finalizado ? <Check size={13} /> : <CalendarDays size={13} />}</span><span className="planning-library-day-main"><strong>{displayDate(day.fecha)}</strong><small>{day.finalizado ? 'Completado' : `${day.ejercicios?.length || 0} ejercicios`}</small></span><span className="planning-library-day-chevron">⌄</span></summary><div className="planning-library-day-content"><ul>{(day.ejercicios || []).map((exercise, exerciseIndex) => <li key={`${day._id}-${exerciseIndex}`}>{exercise.id_ejercicio?.nombre || 'Ejercicio'}</li>)}</ul>{planning.dias_con_encuesta?.includes(String(day._id)) && <button className="button button-outline planning-survey-day-button" type="button" onClick={() => { setSurveyModalPlanning(planning); setSurveyModalDay({ ...day, numero_semana: week.numero_semana }) }}><ClipboardList size={12} />Ver respuestas del día</button>}</div></details>)}</div></details>)}</div>
         </article>
       })}</div>}
     </>}
+    {surveyModalPlanning && surveyModalDay && <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) { setSurveyModalPlanning(null); setSurveyModalDay(null) } }}>
+      <section className="admin-modal planning-survey-modal" role="dialog" aria-modal="true" aria-labelledby="planning-survey-title">
+        <header className="planning-survey-modal-header"><div><div className="admin-kicker">SEGUIMIENTO DEL CLIENTE</div><h2 id="planning-survey-title">Respuestas del día</h2><p>{surveyModalPlanning.nombre} · {displayDate(surveyModalDay.fecha, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · Semana {surveyModalDay.numero_semana}</p></div><button className="admin-icon-danger" type="button" aria-label="Cerrar respuestas" onClick={() => { setSurveyModalPlanning(null); setSurveyModalDay(null) }}><X size={18} /></button></header>
+        <div className="planning-survey-modal-content">
+          {loadingPlanningSurveys ? <div className="admin-state">Cargando respuestas…</div>
+            : planningSurveyError ? <p className="admin-alert" role="alert">{planningSurveyError}</p>
+              : planningSurveys.length === 0 ? <div className="admin-empty"><ClipboardList size={22} /><strong>Aún no hay respuestas</strong><p>Las encuestas aparecerán aquí cuando el cliente cierre una sesión y envíe sus respuestas.</p></div>
+                : <div className="planning-survey-list">{planningSurveys.map((survey) => <article className="planning-survey-card" key={survey._id}>
+                  <header><div><strong>{survey.id_cliente?.nombre || 'Cliente'}</strong><span>{survey.id_cliente?.email || ''}</span></div><div className="planning-survey-date">{survey.dia_entrenamiento?.fecha ? displayDate(survey.dia_entrenamiento.fecha, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Día de entrenamiento'}{survey.dia_entrenamiento?.numero_semana ? ` · Semana ${survey.dia_entrenamiento.numero_semana}` : ''}</div></header>
+                  <div className="planning-survey-answers"><div><span>Exigencia</span><strong>{['', 'Muy baja', 'Baja', 'Moderada', 'Alta', 'Muy alta'][survey.nivel_exigencia] || `${survey.nivel_exigencia}/5`} <small>({survey.nivel_exigencia}/5)</small></strong></div><div><span>¿Tuvo molestias?</span><strong>{survey.tuvo_molestia ? 'Sí' : 'No'}</strong></div></div>
+                  {survey.tuvo_molestia && <div className="planning-survey-note"><span>Detalle de la molestia</span><p>{survey.detalle_molestia || 'No dejó detalles.'}</p></div>}
+                  <div className="planning-survey-note"><span>Comentarios adicionales</span><p>{survey.comentarios_adicionales || 'Sin comentarios adicionales.'}</p></div>
+                </article>)}</div>}
+        </div>
+        <footer className="planning-survey-modal-footer"><span>{planningSurveys.length} {planningSurveys.length === 1 ? 'respuesta' : 'respuestas'}</span><button className="button button-primary" type="button" onClick={() => { setSurveyModalPlanning(null); setSurveyModalDay(null) }}>Cerrar</button></footer>
+      </section>
+    </div>}
   </section>
 }

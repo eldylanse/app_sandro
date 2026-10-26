@@ -1,0 +1,27 @@
+/* Raise the smallest admin text to a comfortable reading size. */
+.admin-app :is(p,label,input,select,textarea,button,a,small,li,.admin-kicker,.admin-result-count,.plan-badge,.admin-client-contact span,.admin-client-details span,.review-feature-state,.session-admin-date span){font-size:max(12px,1.12em)!important}
+.admin-app .admin-kicker{font-size:11px!important;letter-spacing:1.2px}
+.admin-app .admin-brand-tag{font-size:8px!important}
+.admin-app .admin-page-heading p{font-size:13px!important}
+.admin-app .admin-nav button{font-size:12px!important;padding-inline:13px}
+.admin-app .admin-nav .admin-logout{font-size:11px!important}
+.admin-app .admin-client-heading h2,.admin-app .exercise-title-row h2,.admin-app .session-admin-info h2,.admin-app .admin-review-top h2{font-size:15px!important}
+.admin-app .admin-client-contact span,.admin-app .admin-client-details span{line-height:1.45}
+.admin-app .admin-client-avatar{width:48px;height:48px;font-size:17px}
+.admin-app .client-admin-card.has-active-objective{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(235px,285px) 33px;align-items:center;gap:16px}
+.admin-client-active-objective{min-height:76px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:13px 15px;border:1px solid #d5ddd3;border-left:4px solid #052A1E;border-radius:4px;background:#edf1eb}
+.admin-client-active-objective>span{display:flex;align-items:center;gap:7px;color:#596559;font-size:11px;font-weight:700;line-height:1.3}
+.admin-client-active-objective>span svg{flex:none;color:#052A1E}
+.admin-client-active-objective>strong{color:#26332b;font:700 14px/1.4 'Manrope',sans-serif;overflow-wrap:anywhere}
+@media(max-width:900px) and (min-width:681px){.admin-app .client-admin-card.has-active-objective{grid-template-columns:36px minmax(0,1fr) minmax(190px,225px) 31px;gap:11px}.admin-client-active-objective{padding:11px;min-height:70px}.admin-client-active-objective>strong{font-size:12px}}
+.admin-app .client-contact-trigger{display:inline-flex;width:max-content;min-height:34px;align-items:center;gap:7px;margin-top:10px;padding:0 10px;font-size:11px!important}
+.client-contact-modal h2{max-width:calc(100% - 28px);margin-bottom:18px!important}
+.client-contact-details{display:grid;gap:10px;margin:0 0 20px}
+.client-contact-details>div{display:grid;gap:8px;padding:13px;border:1px solid #e2dbd1;background:#fff}
+.client-contact-details>div>span{display:flex;align-items:center;gap:8px;color:#77716a;font-size:11px;font-weight:700}
+.client-contact-details>div>span svg{color:#052A1E}
+.client-contact-details a,.client-contact-details strong{color:#343331;font-size:13px;font-weight:600;overflow-wrap:anywhere;text-decoration:none}
+.client-contact-details a:hover{text-decoration:underline}
+.client-contact-close{min-height:40px}
+@media(max-width:900px) and (min-width:681px){.admin-app .admin-client-avatar{width:44px;height:44px;font-size:16px}.admin-app .client-admin-card.has-active-objective{grid-template-columns:44px minmax(0,1fr) minmax(190px,225px) 31px;gap:11px}.admin-client-active-objective{padding:11px;min-height:70px}.admin-client-active-objective>strong{font-size:12px}}
+@media(max-width:680px){.admin-app .admin-client-avatar{width:40px;height:40px;font-size:15px}.admin-app .client-admin-card.has-active-objective{display:grid;grid-template-columns:40px minmax(0,1fr) 29px;align-items:start;gap:9px}.admin-app .client-admin-card.has-active-objective>.admin-client-avatar{grid-column:1;grid-row:1}.admin-app .client-admin-card.has-active-objective>.admin-client-main{grid-column:2;grid-row:1}.admin-app .client-admin-card.has-active-objective>.admin-icon-danger{grid-column:3;grid-row:1}.admin-client-active-objective{grid-column:2;grid-row:2;min-height:0;padding:10px 11px;border-left:3px solid #052A1E}.admin-client-active-objective>span{font-size:10px!important}.admin-client-active-objective>strong{font-size:13px!important}.client-contact-trigger{min-height:32px!important;padding:0 8px!important}.admin-app .client-admin-card:not(.has-active-objective){display:grid;grid-template-columns:40px minmax(0,1fr) 29px;align-items:start}.admin-app .client-admin-card:not(.has-active-objective)>.admin-client-avatar{grid-column:1;grid-row:1}.admin-app .client-admin-card:not(.has-active-objective)>.admin-client-main{grid-column:2;grid-row:1}.admin-app .client-admin-card:not(.has-active-objective)>.admin-icon-danger{grid-column:3;grid-row:1}}

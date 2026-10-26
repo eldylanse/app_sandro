@@ -7,6 +7,7 @@ import ReviewsRoute from './admin/ReviewsRoute'
 import SessionsRoute from './admin/SessionsRoute'
 import brandIcon from '../assets/icon.png'
 import './admin/admin.css'
+import './admin/admin-readability.css'
 
 const tabs = [
   { path: '/admin/clientes', label: 'Clientes', icon: UsersRound },

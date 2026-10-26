@@ -2,6 +2,7 @@
 
 import Planning from "../models/planning.model.js";
 import User from "../models/user.model.js";
+import TrainingDaySurvey from "../models/training-day-survey.model.js";
 
 const validateExerciseGoals = (data) => {
   for (const week of data.microciclos || []) {
@@ -60,7 +61,23 @@ export const getPlanningsService = async (userId, userRole) => {
     .populate("id_cliente", "nombre email")
     .populate("microciclos.dias_entrenamiento.ejercicios.id_ejercicio", "nombre categoria url_video");
 
-  return plannings;
+  if (userRole !== "admin" || !plannings.length) return plannings;
+
+  const surveys = await TrainingDaySurvey.find({
+    id_planificacion: { $in: plannings.map((planning) => planning._id) },
+  }).select("id_planificacion id_dia_entrenamiento").lean();
+  const surveyDayIdsByPlanning = new Map();
+  for (const survey of surveys) {
+    const planningId = survey.id_planificacion.toString();
+    const dayIds = surveyDayIdsByPlanning.get(planningId) || new Set();
+    dayIds.add(survey.id_dia_entrenamiento.toString());
+    surveyDayIdsByPlanning.set(planningId, dayIds);
+  }
+
+  return plannings.map((planning) => ({
+    ...planning.toObject(),
+    dias_con_encuesta: [...(surveyDayIdsByPlanning.get(planning._id.toString()) || [])],
+  }));
 };
 
 // 3. Obtener una planificación por ID

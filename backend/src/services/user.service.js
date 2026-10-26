@@ -75,7 +75,7 @@ export const getClientsService = async () => {
     .lean();
   const clientIds = clients.map((client) => client._id);
   const plannings = await Planning.find({ id_cliente: { $in: clientIds } })
-    .select("id_cliente nombre fecha_inicio fecha_termino")
+    .select("id_cliente nombre objetivo fecha_inicio fecha_termino")
     .sort({ fecha_termino: -1 })
     .lean();
   const now = new Date();
@@ -105,7 +105,12 @@ export const getClientsService = async () => {
     return {
       ...client,
       estadoPlan: profileStatus || (activePlan ? "activo" : upcomingPlan ? "programado" : latestPlan ? "finalizado" : "sin_plan"),
-      plan: plan ? { nombre: plan.nombre, fecha_inicio: plan.fecha_inicio, fecha_termino: plan.fecha_termino } : null,
+      plan: plan ? {
+        nombre: plan.nombre,
+        fecha_inicio: plan.fecha_inicio,
+        fecha_termino: plan.fecha_termino,
+        objetivo: activePlan?.objetivo || null,
+      } : null,
     };
   });
 };

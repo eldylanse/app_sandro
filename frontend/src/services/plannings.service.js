@@ -32,6 +32,21 @@ export async function updateTrainingDayStatus(planningId, statusData) {
   return data
 }
 
+export async function getTrainingDaySurvey(planningId, dayId) {
+  const { data } = await api.get(`${resource}/${planningId}/dias/${dayId}/encuesta`)
+  return data
+}
+
+export async function getPlanningSurveys(planningId) {
+  const { data } = await api.get(`${resource}/${planningId}/encuestas`)
+  return data
+}
+
+export async function saveTrainingDaySurvey(planningId, dayId, surveyData) {
+  const { data } = await api.put(`${resource}/${planningId}/dias/${dayId}/encuesta`, surveyData)
+  return data
+}
+
 export async function deletePlanning(planningId) {
   const { data } = await api.delete(`${resource}/${planningId}`)
   return data
