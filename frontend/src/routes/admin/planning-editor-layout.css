@@ -1,0 +1,14 @@
+.admin-app .planning-editor-exercises{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+.admin-app .planning-editor-exercise{display:flex;flex-direction:column;gap:14px;min-width:0;padding:14px;border:1px solid #dedfd9;border-radius:7px;background:#fff;box-shadow:0 2px 8px #3433310a}
+.admin-app .planning-editor-exercise-heading{display:grid;grid-template-columns:32px minmax(0,1fr) 32px;align-items:end;gap:10px;min-width:0}
+.admin-app .planning-editor-exercise-number{width:32px;height:42px;align-self:end;border-radius:4px;background:#e8ece5;color:#365043;font-size:12px}
+.admin-app .planning-editor-exercise-heading .planning-editor-icon-button{width:32px;height:42px;align-self:end;border-radius:4px}
+.admin-app .planning-editor-exercise label{display:block;min-width:0}
+.admin-app .planning-editor-exercise label span{display:block;margin:0 0 6px;color:#565d54;font-size:12px;font-weight:700;line-height:1.2}
+.admin-app .planning-editor-exercise select,.admin-app .planning-editor-exercise input,.admin-app .planning-editor-exercise .planning-goal-type{display:block;width:100%;min-width:0;height:42px;margin:0;padding:0 10px;border:1px solid #d7dcd3;border-radius:4px;background:#fcfdfa;color:#343331;font-size:12px!important}
+.admin-app .planning-editor-exercise select:focus,.admin-app .planning-editor-exercise input:focus{outline:2px solid #9caf9d;outline-offset:1px;border-color:#54705d}
+.admin-app .planning-editor-exercise-fields{display:grid;grid-template-columns:minmax(78px,.7fr) minmax(145px,1.3fr) minmax(105px,1fr);align-items:end;gap:10px;width:min(100%,650px);padding-left:42px}
+.admin-app .planning-editor-add-exercise,.admin-app .planning-editor-empty{grid-column:1/-1}
+@media(min-width:1050px){.admin-app .planning-editor-exercise{display:grid;grid-template-columns:minmax(310px,1.2fr) minmax(360px,1fr);align-items:end;gap:18px}.admin-app .planning-editor-exercise-fields{width:100%;padding-left:0}}
+@media(max-width:680px){.admin-app .planning-editor-exercise{padding:11px;gap:12px}.admin-app .planning-editor-exercise-heading{grid-template-columns:29px minmax(0,1fr) 29px;gap:7px}.admin-app .planning-editor-exercise-number{width:29px;height:40px}.admin-app .planning-editor-exercise-heading .planning-editor-icon-button{width:29px;height:40px}.admin-app .planning-editor-exercise-fields{grid-template-columns:minmax(74px,.7fr) minmax(130px,1.3fr);gap:9px;padding-left:0}.admin-app .planning-goal-value{grid-column:1/-1}}
+@media(max-width:420px){.admin-app .planning-editor-exercise-fields{grid-template-columns:1fr}.admin-app .planning-goal-value{grid-column:auto}}

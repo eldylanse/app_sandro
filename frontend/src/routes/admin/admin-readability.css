@@ -1,5 +1,4 @@
-/* Raise the smallest admin text to a comfortable reading size. */
-.admin-app :is(p,label,input,select,textarea,button,a,small,li,.admin-kicker,.admin-result-count,.plan-badge,.admin-client-contact span,.admin-client-details span,.review-feature-state,.session-admin-date span){font-size:max(12px,1.12em)!important}
+/* Shared type sizes are defined in typography.css. */
 .admin-app .admin-kicker{font-size:11px!important;letter-spacing:1.2px}
 .admin-app .admin-brand-tag{font-size:8px!important}
 .admin-app .admin-page-heading p{font-size:13px!important}
