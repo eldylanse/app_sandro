@@ -9,6 +9,8 @@ import {
   completeClientProfileService,
   addClientMeasurementService,
   getGoogleConnectionStatusService,
+  changeClientPasswordService,
+  resetClientPasswordService,
 } from "../services/user.service.js";
 
 export const getClients = async (_req, res) => {
@@ -35,6 +37,24 @@ export const getClientProfile = async (req, res) => {
     return res.status(200).json({ data: profile });
   } catch (error) {
     return res.status(404).json({ message: error.message });
+  }
+};
+
+export const changeClientPassword = async (req, res) => {
+  try {
+    await changeClientPasswordService(req.user.id, req.body?.currentPassword, req.body?.newPassword);
+    return res.status(200).json({ message: "Contraseña actualizada. Vuelve a iniciar sesión." });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const resetClientPassword = async (req, res) => {
+  try {
+    await resetClientPasswordService(req.params.id, req.body?.newPassword);
+    return res.status(200).json({ message: "Contraseña restablecida correctamente." });
+  } catch (error) {
+    return res.status(error.message === "Cliente no encontrado." ? 404 : 400).json({ message: error.message });
   }
 };
 

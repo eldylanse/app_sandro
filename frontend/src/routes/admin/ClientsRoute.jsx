@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Eye, EyeOff, Mail, Phone, Plus, Search, Target, Trash2, UserRound, X } from 'lucide-react'
+import { Eye, EyeOff, KeyRound, Mail, Phone, Plus, Search, Target, Trash2, UserRound, X } from 'lucide-react'
 import { registerClient } from '../../services/auth.service'
-import { deleteClient, getClients } from '../../services/users.service'
+import { deleteClient, getClients, resetClientPassword } from '../../services/users.service'
 
 const emptyForm = { nombre: '', email: '', celular: '', password: '', fecha_inicio_plan: '', fecha_termino_plan: '' }
 const namePattern = /^\p{L}+(?:\s+\p{L}+)*$/u
@@ -33,6 +33,11 @@ export default function ClientsRoute() {
   const [saving, setSaving] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [contactModalClient, setContactModalClient] = useState(null)
+  const [resetModalClient, setResetModalClient] = useState(null)
+  const [resetPassword, setResetPassword] = useState('')
+  const [resetConfirmation, setResetConfirmation] = useState('')
+  const [resetError, setResetError] = useState('')
+  const [resetSaving, setResetSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
 
@@ -103,6 +108,36 @@ export default function ClientsRoute() {
     }
   }
 
+  function closeResetModal() {
+    if (resetSaving) return
+    setResetModalClient(null)
+    setResetPassword('')
+    setResetConfirmation('')
+    setResetError('')
+  }
+
+  async function submitReset(event) {
+    event.preventDefault()
+    if (resetPassword !== resetConfirmation) {
+      setResetError('Las contraseñas no coinciden.')
+      return
+    }
+    setResetSaving(true)
+    setResetError('')
+    try {
+      await resetClientPassword(resetModalClient._id, resetPassword)
+      const name = resetModalClient.nombre
+      setResetModalClient(null)
+      setResetPassword('')
+      setResetConfirmation('')
+      setNotice(`Contraseña restablecida para ${name}. Comunícale la nueva contraseña por un canal seguro.`)
+    } catch (requestError) {
+      setResetError(requestError.response?.data?.message || 'No se pudo restablecer la contraseña.')
+    } finally {
+      setResetSaving(false)
+    }
+  }
+
   return <section className="admin-page">
     <div className="admin-page-heading"><div><div className="admin-kicker">GESTIÓN DE CLIENTES</div><h1>Tus <em>clientes.</em></h1><p>Administra perfiles, planes y accesos de tus atletas.</p></div><button className="button button-primary admin-action" onClick={() => { setShowForm(!showForm); setError('') }}>{showForm ? <X size={16} /> : <Plus size={16} />}{showForm ? 'Cerrar formulario' : 'Agregar cliente'}</button></div>
     {error && <p className="admin-alert" role="alert">{error}</p>}{notice && <p className="admin-notice" role="status">{notice}</p>}
@@ -110,7 +145,8 @@ export default function ClientsRoute() {
     <div className="admin-list-toolbar"><div className="admin-result-count">{clients.length} {clients.length === 1 ? 'cliente' : 'clientes'}</div><label className="admin-search"><Search size={16} /><input aria-label="Buscar clientes" placeholder="Buscar por nombre, correo o celular" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
     {loading && <div className="admin-state">Cargando clientes…</div>}
     {!loading && !error && visibleClients.length === 0 && <div className="admin-empty"><UserRound size={21} /><strong>{query ? 'No encontramos coincidencias' : 'Todavía no hay clientes'}</strong><p>{query ? 'Prueba con otro nombre o correo.' : 'Agrega el primer cliente para comenzar.'}</p></div>}
-    <div className="client-admin-list">{visibleClients.map((client) => { const hasActiveObjective = client.estadoPlan === 'activo' && Boolean(client.plan?.objetivo?.trim()); return <article className={`client-admin-card status-${client.estadoPlan || 'sin_plan'}${hasActiveObjective ? ' has-active-objective' : ''}`} key={client._id}><div className="admin-client-avatar">{client.nombre?.charAt(0)?.toUpperCase() || 'C'}</div><div className="admin-client-main"><div className="admin-client-heading"><h2>{client.nombre}</h2><span className={`plan-badge plan-${client.estadoPlan || 'sin_plan'}`}><i />{planLabel(client.estadoPlan)}</span></div><div className="admin-client-details"><span>{client.perfilCliente?.edad ? `${client.perfilCliente.edad} años` : 'Perfil pendiente'}</span><span>{client.perfilCliente?.peso ? `${client.perfilCliente.peso} kg` : 'Sin medición'}</span>{client.plan && <span>{client.plan.nombre}: {planDate(client.plan.fecha_inicio)} – {planDate(client.plan.fecha_termino)}</span>}</div><button className="button button-outline client-contact-trigger" type="button" onClick={() => setContactModalClient(client)}><Mail size={14} />Ver contacto</button></div>{hasActiveObjective && <aside className="admin-client-active-objective"><span><Target size={15} />Objetivo de la planificación</span><strong>{client.plan.objetivo}</strong></aside>}<button className="admin-icon-danger" aria-label={`Eliminar a ${client.nombre}`} title="Eliminar cliente" onClick={() => remove(client)}><Trash2 size={16} /></button></article> })}</div>
+    <div className="client-admin-list">{visibleClients.map((client) => { const hasActiveObjective = client.estadoPlan === 'activo' && Boolean(client.plan?.objetivo?.trim()); return <article className={`client-admin-card status-${client.estadoPlan || 'sin_plan'}${hasActiveObjective ? ' has-active-objective' : ''}`} key={client._id}><div className="admin-client-avatar">{client.nombre?.charAt(0)?.toUpperCase() || 'C'}</div><div className="admin-client-main"><div className="admin-client-heading"><h2>{client.nombre}</h2><span className={`plan-badge plan-${client.estadoPlan || 'sin_plan'}`}><i />{planLabel(client.estadoPlan)}</span></div><div className="admin-client-details"><span>{client.perfilCliente?.edad ? `${client.perfilCliente.edad} años` : 'Perfil pendiente'}</span><span>{client.perfilCliente?.peso ? `${client.perfilCliente.peso} kg` : 'Sin medición'}</span>{client.plan && <span>{client.plan.nombre}: {planDate(client.plan.fecha_inicio)} – {planDate(client.plan.fecha_termino)}</span>}</div><div className="client-admin-actions"><button className="button button-outline client-contact-trigger" type="button" onClick={() => setContactModalClient(client)}><Mail size={14} />Ver contacto</button><button className="button button-outline client-contact-trigger" type="button" onClick={() => { setResetModalClient(client); setResetError(''); setNotice('') }}><KeyRound size={14} />Restablecer contraseña</button></div></div>{hasActiveObjective && <aside className="admin-client-active-objective"><span><Target size={15} />Objetivo de la planificación</span><strong>{client.plan.objetivo}</strong></aside>}<button className="admin-icon-danger" aria-label={`Eliminar a ${client.nombre}`} title="Eliminar cliente" onClick={() => remove(client)}><Trash2 size={16} /></button></article> })}</div>
     {contactModalClient && <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setContactModalClient(null) }}><section className="admin-modal client-contact-modal" role="dialog" aria-modal="true" aria-labelledby="client-contact-title"><button className="admin-modal-close" type="button" aria-label="Cerrar contacto" onClick={() => setContactModalClient(null)}><X size={18} /></button><div className="admin-kicker">DATOS DEL CLIENTE</div><h2 id="client-contact-title">Contacto de {contactModalClient.nombre}</h2><div className="client-contact-details"><div><span><Mail size={17} />Correo electrónico</span>{contactModalClient.email ? <a href={`mailto:${contactModalClient.email}`}>{contactModalClient.email}</a> : <strong>No registrado</strong>}</div><div><span><Phone size={17} />Teléfono</span>{contactModalClient.celular ? <a href={`tel:${contactModalClient.celular.replace(/[^+\d]/g, '')}`}>{contactModalClient.celular}</a> : <strong>No registrado</strong>}</div></div><button className="button button-primary client-contact-close" type="button" onClick={() => setContactModalClient(null)}>Cerrar</button></section></div>}
+    {resetModalClient && <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeResetModal() }}><section className="admin-modal client-reset-modal" role="dialog" aria-modal="true" aria-labelledby="client-reset-title"><button className="admin-modal-close" type="button" aria-label="Cerrar" onClick={closeResetModal} disabled={resetSaving}><X size={18} /></button><div className="admin-kicker">ACCESO DEL CLIENTE</div><h2 id="client-reset-title">Restablecer contraseña de {resetModalClient.nombre}</h2><p>El cliente tendrá que iniciar sesión nuevamente con la contraseña que definas aquí.</p><form onSubmit={submitReset}><label>Nueva contraseña<input type="password" autoComplete="new-password" minLength="6" maxLength="128" value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} required /></label><label>Confirmar contraseña<input type="password" autoComplete="new-password" minLength="6" maxLength="128" value={resetConfirmation} onChange={(event) => setResetConfirmation(event.target.value)} required /></label>{resetError && <p className="admin-alert" role="alert">{resetError}</p>}<button className="button button-dark" type="submit" disabled={resetSaving}>{resetSaving ? 'Restableciendo…' : 'Guardar nueva contraseña'}</button></form></section></div>}
   </section>
 }

@@ -8,6 +8,12 @@ const validateExerciseGoals = (data) => {
   for (const week of data.microciclos || []) {
     for (const day of week.dias_entrenamiento || []) {
       for (const exercise of day.ejercicios || []) {
+        if (exercise.peso_planificado !== undefined && exercise.peso_planificado !== null && exercise.peso_planificado !== "") {
+          const weight = Number(exercise.peso_planificado);
+          if (!Number.isFinite(weight) || weight <= 0) {
+            throw new Error("El peso planificado debe ser un número mayor que cero o quedar vacío.");
+          }
+        }
         const type = exercise.tipo_objetivo || "repeticiones";
         if (type === "tiempo" && (!Number.isFinite(Number(exercise.tiempo_segundos)) || Number(exercise.tiempo_segundos) < 1)) {
           throw new Error("Los ejercicios por tiempo deben tener una duración de al menos 1 segundo.");

@@ -22,6 +22,9 @@ export const verifyAccessToken = async (req, res, next) => {
         message: "El usuario asociado a este token ya no existe.",
       });
     }
+    if ((decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) {
+      return res.status(401).json({ message: "La sesión dejó de ser válida. Vuelve a iniciar sesión." });
+    }
     req.user = {
       id: user._id,
       role: user.role,

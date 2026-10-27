@@ -42,6 +42,7 @@ const planningSchema = new mongoose.Schema(
                   required: true,
                 },
                 series_planificadas: { type: Number },
+                peso_planificado: { type: Number, min: 0.1, default: null }, // Kilogramos; opcional.
                 tipo_objetivo: { type: String, enum: ["repeticiones", "tiempo"], default: "repeticiones" },
                 repeticiones_planificadas: { type: String }, // Ej: "10-12"
                 tiempo_segundos: {

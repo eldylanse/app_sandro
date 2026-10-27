@@ -95,14 +95,14 @@ export const loginService = async (body) => {
   // 3. Generar los tokens usando los secretos de configEnv.js
   // Token de acceso (corta duración, ej: 15 minutos o 1 hora)
   const accessToken = jwt.sign(
-    { id: userFound._id, role: userFound.role },
+    { id: userFound._id, role: userFound.role, tokenVersion: userFound.tokenVersion || 0 },
     ACCESS_JWT_SECRET,
     { expiresIn: "1h" }
   );
 
   // Token de refresco (larga duración, ej: 7 días)
   const refreshToken = jwt.sign(
-    { id: userFound._id },
+    { id: userFound._id, tokenVersion: userFound.tokenVersion || 0 },
     REFRESH_JWT_SECRET,
     { expiresIn: "7d" }
   );

@@ -9,6 +9,7 @@ import ReviewsRoute from './client/ReviewsRoute'
 import RoutinesRoute from './client/RoutinesRoute'
 import { isClientProfileComplete } from './client/profile-complete'
 import './client/client.css'
+import './client/password-modal.css'
 
 const tabs = [
   { path: '/cliente/agenda', label: 'Agenda', icon: CalendarDays },
@@ -76,7 +77,7 @@ export default function ClienteRoutes({ onLogout }) {
     const params = new URLSearchParams({ planning: planningId, cycle: String(microcycleIndex), day: String(dayIndex) })
     navigate(`/cliente/rutinas?${params.toString()}`)
   }} />
-  if (currentPath === '/cliente/perfil') screen = <ProfileRoute />
+  if (currentPath === '/cliente/perfil') screen = <ProfileRoute onLogout={onLogout} />
   if (currentPath === '/cliente/rutinas') screen = <RoutinesRoute onBackToAgenda={() => navigate('/cliente/agenda')} />
   if (currentPath === '/cliente/resenas') screen = <ReviewsRoute />
 

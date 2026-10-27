@@ -68,6 +68,39 @@ export const getClientProfileService = async (userId) => {
   };
 };
 
+const validateNewPassword = (password) => {
+  if (typeof password !== "string" || password.length < 6 || password.length > 128) {
+    throw new Error("La nueva contraseña debe tener entre 6 y 128 caracteres.");
+  }
+};
+
+export const changeClientPasswordService = async (userId, currentPassword, newPassword) => {
+  if (typeof currentPassword !== "string" || !currentPassword) {
+    throw new Error("Ingresa tu contraseña actual.");
+  }
+  validateNewPassword(newPassword);
+  const client = await User.findOne({ _id: userId, role: "cliente" });
+  if (!client) throw new Error("Cliente no encontrado.");
+  if (!(await User.comparePassword(currentPassword, client.password))) {
+    throw new Error("La contraseña actual es incorrecta.");
+  }
+  if (await User.comparePassword(newPassword, client.password)) {
+    throw new Error("La nueva contraseña debe ser diferente de la actual.");
+  }
+  client.password = await User.encryptPassword(newPassword);
+  client.tokenVersion = (client.tokenVersion || 0) + 1;
+  await client.save();
+};
+
+export const resetClientPasswordService = async (clientId, newPassword) => {
+  validateNewPassword(newPassword);
+  const client = await User.findOne({ _id: clientId, role: "cliente" });
+  if (!client) throw new Error("Cliente no encontrado.");
+  client.password = await User.encryptPassword(newPassword);
+  client.tokenVersion = (client.tokenVersion || 0) + 1;
+  await client.save();
+};
+
 export const getClientsService = async () => {
   const clients = await User.find({ role: "cliente" })
     .select("nombre email celular perfilCliente createdAt")

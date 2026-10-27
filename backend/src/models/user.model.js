@@ -105,6 +105,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
     role: {
       type: String,
       enum: ROLES,

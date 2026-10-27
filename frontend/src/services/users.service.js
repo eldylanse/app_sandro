@@ -10,6 +10,16 @@ export async function deleteClient(clientId) {
   return data
 }
 
+export async function resetClientPassword(clientId, newPassword) {
+  const { data } = await api.patch(`/users/clientes/${clientId}/password`, { newPassword })
+  return data
+}
+
+export async function changeClientPassword(currentPassword, newPassword) {
+  const { data } = await api.patch('/users/perfil/password', { currentPassword, newPassword })
+  return data
+}
+
 export async function getClientProfile() {
   const { data } = await api.get('/users/perfil')
   return data.data
