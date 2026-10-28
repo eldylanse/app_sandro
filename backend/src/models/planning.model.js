@@ -50,17 +50,6 @@ const planningSchema = new mongoose.Schema(
                   min: 1,
                   required: function () { return this.tipo_objetivo === "tiempo"; },
                 },
-                
-                // Historial de rendimiento real del cliente:
-                historial_rendimiento: [
-                  {
-                    fecha_registro: { type: Date, default: Date.now },
-                    serie: { type: Number }, // Número de serie (1, 2, 3...)
-                    peso: { type: Number }, // Peso en kg
-                    repeticiones_reales: { type: Number }, // Repeticiones logradas
-                    tiempo_segundos: { type: Number, required: false }, // Opcional si es ejercicio por tiempo
-                  }
-                ],
               },
             ],
           },

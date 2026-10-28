@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import './theme.css'
 import './typography.css'
+import './plan-discounts.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

@@ -5,7 +5,6 @@ import {
   updatePlanningService,
   getPlanningsService,
   getPlanningByIdService,
-  addPerformanceRecordService,
   deletePlanningService,
   updateTrainingDayStatusService,
 } from "../services/planning.service.js";
@@ -54,7 +53,7 @@ export const getPlannings = async (req, res) => {
 export const getPlanningById = async (req, res) => {
   try {
     const { id } = req.params;
-    const planning = await getPlanningByIdService(id);
+    const planning = await getPlanningByIdService(id, req.user.id, req.user.role);
     return res.status(200).json({
       message: "Planificación obtenida exitosamente.",
       planning,
@@ -62,30 +61,6 @@ export const getPlanningById = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener planificación:", error.message);
     return res.status(404).json({ message: error.message });
-  }
-};
-
-// Registrar progreso de entrenamiento / historial de peso y repeticiones
-export const addPerformanceRecord = async (req, res) => {
-  try {
-    const { id } = req.params; // ID de la planificación
-    const { microcicloIndex, diaIndex, ejercicioIndex, registro } = req.body;
-
-    const updatedPlanning = await addPerformanceRecordService({
-      planningId: id,
-      microcicloIndex,
-      diaIndex,
-      ejercicioIndex,
-      registro,
-    });
-
-    return res.status(200).json({
-      message: "¡Rendimiento registrado exitosamente!",
-      planning: updatedPlanning,
-    });
-  } catch (error) {
-    console.error("Error al registrar rendimiento:", error.message);
-    return res.status(400).json({ message: error.message });
   }
 };
 

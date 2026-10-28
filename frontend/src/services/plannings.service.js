@@ -22,11 +22,6 @@ export async function updatePlanning(planningId, planningData) {
   return data
 }
 
-export async function addPerformanceRecord(planningId, performanceData) {
-  const { data } = await api.post(`${resource}/${planningId}/performance`, performanceData)
-  return data
-}
-
 export async function updateTrainingDayStatus(planningId, statusData) {
   const { data } = await api.patch(`${resource}/${planningId}/dias/estado`, statusData)
   return data

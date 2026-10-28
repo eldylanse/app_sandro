@@ -58,10 +58,10 @@ export const updatePlanningService = async (planningId, data) => {
 
 // 2. Obtener planificaciones (Si es cliente ve las suyas, si es admin ve todas)
 export const getPlanningsService = async (userId, userRole) => {
-  let query = {};
-  if (userRole === "cliente") {
-    query = { id_cliente: userId };
+  if (userRole !== "admin" && userRole !== "cliente") {
+    throw new Error("Acceso denegado a las planificaciones.");
   }
+  const query = userRole === "cliente" ? { id_cliente: userId } : {};
 
   const plannings = await Planning.find(query)
     .populate("id_cliente", "nombre email")
@@ -86,9 +86,15 @@ export const getPlanningsService = async (userId, userRole) => {
   }));
 };
 
+const accessiblePlanningQuery = (planningId, userId, userRole) => {
+  if (userRole === "admin") return { _id: planningId };
+  if (userRole === "cliente" && userId) return { _id: planningId, id_cliente: userId };
+  throw new Error("Acceso denegado a las planificaciones.");
+};
+
 // 3. Obtener una planificación por ID
-export const getPlanningByIdService = async (planningId) => {
-  const planning = await Planning.findById(planningId)
+export const getPlanningByIdService = async (planningId, userId, userRole) => {
+  const planning = await Planning.findOne(accessiblePlanningQuery(planningId, userId, userRole))
     .populate("id_cliente", "nombre email")
     .populate("microciclos.dias_entrenamiento.ejercicios.id_ejercicio", "nombre descripcion categoria url_video");
 
@@ -96,27 +102,6 @@ export const getPlanningByIdService = async (planningId) => {
     throw new Error("Planificación no encontrada.");
   }
 
-  return planning;
-};
-
-// 4. Registrar avance en el historial de rendimiento de un ejercicio
-export const addPerformanceRecordService = async ({ planningId, microcicloIndex, diaIndex, ejercicioIndex, registro }) => {
-  const planning = await Planning.findById(planningId);
-  if (!planning) {
-    throw new Error("Planificación no encontrada.");
-  }
-
-  // Acceder al ejercicio específico dentro del día y microciclo
-  const targetExercise = planning.microciclos[microcicloIndex]?.dias_entrenamiento[diaIndex]?.ejercicios[ejercicioIndex];
-
-  if (!targetExercise) {
-    throw new Error("Ejercicio no encontrado en la planificación.");
-  }
-
-  // Insertar el nuevo registro de rendimiento (serie, peso, repeticiones reales)
-  targetExercise.historial_rendimiento.push(registro);
-
-  await planning.save();
   return planning;
 };
 
@@ -140,7 +125,7 @@ export const updateTrainingDayStatusService = async ({ planningId, clientId, mic
   return planning;
 };
 
-// 5. Eliminar una planificación
+// Eliminar una planificación
 export const deletePlanningService = async (planningId) => {
   const planning = await Planning.findByIdAndDelete(planningId);
   if (!planning) {

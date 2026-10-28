@@ -13,6 +13,12 @@ export const HOST = process.env.HOST;
 export const DB_URL = process.env.DB_URL;
 export const ACCESS_JWT_SECRET = process.env.ACCESS_JWT_SECRET;
 export const REFRESH_JWT_SECRET = process.env.REFRESH_JWT_SECRET;
+export const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS;
+export const ADMIN_NAME = process.env.ADMIN_NAME;
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+export const ADMIN_PHONE = process.env.ADMIN_PHONE;
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
 
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;

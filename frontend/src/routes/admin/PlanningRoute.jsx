@@ -55,7 +55,6 @@ function fromPlanning(planning) {
           tipo_objetivo: exercise.tipo_objetivo || 'repeticiones',
           repeticiones_planificadas: exercise.repeticiones_planificadas || '8-12',
           tiempo_segundos: exercise.tiempo_segundos ?? 30,
-          historial_rendimiento: exercise.historial_rendimiento || [],
         })),
       })),
     })),
@@ -170,7 +169,7 @@ export default function PlanningRoute() {
         nextDate.setDate(nextDate.getDate() + 7)
         const date = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`
         if (current.fecha_termino && date > current.fecha_termino) return []
-        return [{ ...day, fecha: date, finalizado: false, ejercicios: day.ejercicios.map((exercise) => ({ ...exercise, historial_rendimiento: [] })) }]
+        return [{ ...day, fecha: date, finalizado: false, ejercicios: day.ejercicios.map((exercise) => ({ ...exercise })) }]
       }) : []
       return { ...current, microciclos: [...current.microciclos, { numero_semana: current.microciclos.length + 1, dias_entrenamiento: days }] }
     })
@@ -228,7 +227,7 @@ export default function PlanningRoute() {
           dias_entrenamiento: week.dias_entrenamiento.map((day) => ({
             fecha: new Date(`${day.fecha}T12:00:00`).toISOString(),
             finalizado: day.finalizado,
-            ejercicios: day.ejercicios.map(({ id_ejercicio, series_planificadas, peso_planificado, tipo_objetivo, repeticiones_planificadas, tiempo_segundos, historial_rendimiento }) => ({ id_ejercicio, series_planificadas: Number(series_planificadas), peso_planificado: peso_planificado === '' || peso_planificado == null ? null : Number(peso_planificado), tipo_objetivo, repeticiones_planificadas: tipo_objetivo === 'repeticiones' ? repeticiones_planificadas : undefined, tiempo_segundos: tipo_objetivo === 'tiempo' ? Number(tiempo_segundos) : undefined, historial_rendimiento })),
+            ejercicios: day.ejercicios.map(({ id_ejercicio, series_planificadas, peso_planificado, tipo_objetivo, repeticiones_planificadas, tiempo_segundos }) => ({ id_ejercicio, series_planificadas: Number(series_planificadas), peso_planificado: peso_planificado === '' || peso_planificado == null ? null : Number(peso_planificado), tipo_objetivo, repeticiones_planificadas: tipo_objetivo === 'repeticiones' ? repeticiones_planificadas : undefined, tiempo_segundos: tipo_objetivo === 'tiempo' ? Number(tiempo_segundos) : undefined })),
           })),
         })),
       }
@@ -300,7 +299,7 @@ export default function PlanningRoute() {
               <div className="planning-editor-exercises">{day.ejercicios.map((exercise, exerciseIndex) => <div className="planning-editor-exercise" key={`exercise-${exerciseIndex}`}>
                 <div className="planning-editor-exercise-heading">
                   <span className="planning-editor-exercise-number">{String(exerciseIndex + 1).padStart(2, '0')}</span>
-                  <label className="planning-exercise-field"><span>Ejercicio</span><select className="planning-exercise-select" required value={exercise.id_ejercicio} onChange={(event) => updateDay(weekIndex, dayIndex, (current) => ({ ...current, ejercicios: current.ejercicios.map((item, index) => index === exerciseIndex ? { ...item, id_ejercicio: event.target.value, historial_rendimiento: item.id_ejercicio === event.target.value ? item.historial_rendimiento : [] } : item) }))}><option value="">Selecciona ejercicio</option>{exercises.filter((item) => visibleExercises.some((visible) => visible._id === item._id) || item._id === exercise.id_ejercicio).map((item) => <option key={item._id} value={item._id}>{item.nombre} · {item.categoria}</option>)}</select></label>
+                  <label className="planning-exercise-field"><span>Ejercicio</span><select className="planning-exercise-select" required value={exercise.id_ejercicio} onChange={(event) => updateDay(weekIndex, dayIndex, (current) => ({ ...current, ejercicios: current.ejercicios.map((item, index) => index === exerciseIndex ? { ...item, id_ejercicio: event.target.value } : item) }))}><option value="">Selecciona ejercicio</option>{exercises.filter((item) => visibleExercises.some((visible) => visible._id === item._id) || item._id === exercise.id_ejercicio).map((item) => <option key={item._id} value={item._id}>{item.nombre} · {item.categoria}</option>)}</select></label>
                   <button className="planning-editor-icon-button is-danger" type="button" aria-label="Quitar ejercicio" onClick={() => updateDay(weekIndex, dayIndex, (current) => ({ ...current, ejercicios: current.ejercicios.filter((_, index) => index !== exerciseIndex) }))}><Trash2 size={14} /></button>
                 </div>
                 <div className="planning-editor-exercise-fields">
@@ -311,7 +310,7 @@ export default function PlanningRoute() {
                 </div>
               </div>)}
                 {!day.ejercicios.length && <p className="planning-editor-empty">Todavía no agregas ejercicios a este día.</p>}
-                <button className="planning-editor-add-exercise" type="button" disabled={!visibleExercises.length} onClick={() => updateDay(weekIndex, dayIndex, (current) => ({ ...current, ejercicios: [...current.ejercicios, { id_ejercicio: '', series_planificadas: 3, peso_planificado: '', tipo_objetivo: 'repeticiones', repeticiones_planificadas: '8-12', tiempo_segundos: 30, historial_rendimiento: [] }] }))}><Plus size={14} />Añadir ejercicio</button>
+                <button className="planning-editor-add-exercise" type="button" disabled={!visibleExercises.length} onClick={() => updateDay(weekIndex, dayIndex, (current) => ({ ...current, ejercicios: [...current.ejercicios, { id_ejercicio: '', series_planificadas: 3, peso_planificado: '', tipo_objetivo: 'repeticiones', repeticiones_planificadas: '8-12', tiempo_segundos: 30 }] }))}><Plus size={14} />Añadir ejercicio</button>
               </div>
             </section>)}</div>
             <button className="planning-editor-add-day" type="button" onClick={() => addDay(weekIndex)}><CalendarPlus size={15} />Añadir día a semana {weekIndex + 1}</button>

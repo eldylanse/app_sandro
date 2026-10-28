@@ -6,9 +6,29 @@ import brandIcon from './assets/icon.png'
 import ClienteRoutes from './routes/ClienteRoutes'
 import AdminRoutes from './routes/AdminRoutes'
 import './App.css'
+import './creator-credit.css'
 
 const tokenKey = 'sandro.accessToken'
 const whatsappNumber = (import.meta.env.VITE_WHATSAPP_NUMBER || '56912345678').replace(/\D/g, '')
+const creatorContacts = [
+  { name: 'Dylan Suazo', email: 'suazoescobar.dylanignacio@gmail.com' },
+  { name: 'Cristofer Mellado', email: 'cristofermellado11@gmail.com' },
+]
+
+const pricePeriods = ['Mensual', 'Trimestral', 'Semestral']
+
+function formatPrice(amount) {
+  return `$${new Intl.NumberFormat('es-CL').format(amount)}`
+}
+
+function PlanPrices({ planName, discount, prices }) {
+  return <div className="plan-prices" aria-label={`Precios del plan ${planName} con ${discount}% de descuento`}>
+    {prices.map((price, index) => <div className="plan-price-row" key={pricePeriods[index]}>
+      <span>{pricePeriods[index]}</span>
+      <div className="plan-price-values"><del>{formatPrice(price)}</del><strong>{formatPrice(Math.round(price * (100 - discount) / 100))}</strong></div>
+    </div>)}
+  </div>
+}
 
 function planWhatsappUrl(planName) {
   const message = encodeURIComponent(`Hola, quiero consultar por el plan ${planName} de Tribu Fit.`)
@@ -39,6 +59,8 @@ function App() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [featuredReviews, setFeaturedReviews] = useState([])
+  const [copiedCreator, setCopiedCreator] = useState('')
+  const [copyError, setCopyError] = useState('')
   const role = token ? roleFromToken(token) : null
 
   useEffect(() => {
@@ -46,6 +68,41 @@ function App() {
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
+
+  useEffect(() => {
+    if (!copiedCreator) return undefined
+    const timeout = window.setTimeout(() => setCopiedCreator(''), 2500)
+    return () => window.clearTimeout(timeout)
+  }, [copiedCreator])
+
+  async function copyCreatorEmail(name, email) {
+    setCopyError('')
+    try {
+      let copied = false
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(email)
+          copied = true
+        } catch {
+          // Algunos navegadores requieren el método alternativo.
+        }
+      }
+      if (!copied) {
+        const field = document.createElement('textarea')
+        field.value = email
+        field.style.position = 'fixed'
+        field.style.opacity = '0'
+        document.body.appendChild(field)
+        field.select()
+        copied = document.execCommand('copy')
+        field.remove()
+        if (!copied) throw new Error('No se pudo copiar el correo.')
+      }
+      setCopiedCreator(name)
+    } catch {
+      setCopyError('No se pudo copiar el correo. Inténtalo de nuevo.')
+    }
+  }
 
   useEffect(() => {
     if (path.startsWith('/admin') || path.startsWith('/cliente')) return
@@ -162,9 +219,9 @@ function App() {
 
       <section className="plans-section" id="planes"><div className="section-wrap plans-wrap"><div className="section-kicker">02 — PLANES DE ENTRENAMIENTO</div><div className="plans-heading"><h2>Un buen plan<br /><span>lo cambia todo.</span></h2><p>Elige el enfoque de entrenamiento y la duración que mejor se adapte a tus objetivos.</p></div>
         <div className="plans-grid">
-          <article className="plan-card plan-video"><div className="plan-top"><span> ENTRENAMIENTO EN VIVO</span><span className="plan-dot" /></div><h3>Videollamadas</h3><p className="plan-desc">Entrena acompañado y recibe correcciones en tiempo real.</p><ul><li><Check size={15} />3 sesiones individuales por semana</li><li><Check size={15} />Sesiones de 45 a 60 minutos</li><li><Check size={15} />Corrección de técnica en tiempo real</li><li><Check size={15} />Ejercicios adaptados a tu nivel y materiales</li><li><Check size={15} />Seguimiento de objetivos</li></ul><div className="plan-prices" aria-label="Precios del plan Videollamadas"><div className="plan-price-row"><span>Mensual</span><strong>$99.990</strong></div><div className="plan-price-row"><span>Trimestral</span><strong>$269.990</strong></div><div className="plan-price-row"><span>Semestral</span><strong>$499.990</strong></div></div><button className="button button-dark" type="button" onClick={() => setContactPlan('Videollamadas')}>Consultar por WhatsApp <ArrowRight size={16} /></button></article>
-          <article className="plan-card plan-routines"><div className="plan-top"><span> AUTONOMÍA Y ESTRUCTURA</span><span className="plan-dot" /></div><h3>Rutinas personalizadas</h3><p className="plan-desc">Una planificación a tu medida con seguimiento y ajustes semanales.</p><ul><li><Check size={15} />Evaluación inicial de objetivos y experiencia</li><li><Check size={15} />Rutina personalizada de 5 a 6 días por semana</li><li><Check size={15} />Indicaciones técnicas y alternativas según tus materiales</li><li><Check size={15} />Revisión semanal del progreso</li><li><Check size={15} />Ajustes programados</li></ul><div className="plan-prices" aria-label="Precios del plan Rutinas personalizadas"><div className="plan-price-row"><span>Mensual</span><strong>$39.990</strong></div><div className="plan-price-row"><span>Trimestral</span><strong>$109.990</strong></div><div className="plan-price-row"><span>Semestral</span><strong>$199.990</strong></div></div><button className="button button-dark" type="button" onClick={() => setContactPlan('Rutinas personalizadas')}>Consultar por WhatsApp <ArrowRight size={16} /></button></article>
-          <article className="plan-card plan-featured"><div className="plan-top"><span> INTEGRAL · ACOMPAÑAMIENTO COMPLETO</span><span className="plan-dot" /></div><h3>Integral</h3><p className="plan-desc">Combina sesiones en vivo, planificación y seguimiento continuo.</p><ul><li><Check size={15} />3 sesiones individuales por semana por videollamada</li><li><Check size={15} />Rutina personalizada de 5 a 6 días por semana</li><li><Check size={15} />Evaluación inicial y objetivos individualizados</li><li><Check size={15} />Corrección técnica en vivo</li><li><Check size={15} />Seguimiento, ajustes semanales y evaluaciones periódicas</li><li><Check size={15} />Planificación progresiva</li></ul><div className="plan-prices" aria-label="Precios del plan Integral"><div className="plan-price-row"><span>Mensual</span><strong>$129.990</strong></div><div className="plan-price-row"><span>Trimestral</span><strong>$359.990</strong></div><div className="plan-price-row"><span>Semestral</span><strong>$659.990</strong></div></div><button className="button button-primary" type="button" onClick={() => setContactPlan('Integral')}>Consultar por WhatsApp <ArrowRight size={16} /></button></article>
+          <article className="plan-card plan-video"><div className="plan-top"><span>ENTRENAMIENTO EN VIVO</span><span className="plan-discount-badge" aria-label="20% de descuento">−20%</span></div><h3>Videollamadas</h3><p className="plan-desc">Entrena acompañado y recibe correcciones en tiempo real.</p><ul><li><Check size={15} />3 sesiones individuales por semana</li><li><Check size={15} />Sesiones de 45 a 60 minutos</li><li><Check size={15} />Corrección de técnica en tiempo real</li><li><Check size={15} />Ejercicios adaptados a tu nivel y materiales</li><li><Check size={15} />Seguimiento de objetivos</li></ul><PlanPrices planName="Videollamadas" discount={20} prices={[99990, 269990, 499990]} /><button className="button button-dark" type="button" onClick={() => setContactPlan('Videollamadas')}>Consultar por WhatsApp <ArrowRight size={16} /></button></article>
+          <article className="plan-card plan-routines"><div className="plan-top"><span>AUTONOMÍA Y ESTRUCTURA</span><span className="plan-discount-badge" aria-label="10% de descuento">−10%</span></div><h3>Rutinas personalizadas</h3><p className="plan-desc">Una planificación a tu medida con seguimiento y ajustes semanales.</p><ul><li><Check size={15} />Evaluación inicial de objetivos y experiencia</li><li><Check size={15} />Rutina personalizada de 5 a 6 días por semana</li><li><Check size={15} />Indicaciones técnicas y alternativas según tus materiales</li><li><Check size={15} />Revisión semanal del progreso</li><li><Check size={15} />Ajustes programados</li></ul><PlanPrices planName="Rutinas personalizadas" discount={10} prices={[39990, 109990, 199990]} /><button className="button button-dark" type="button" onClick={() => setContactPlan('Rutinas personalizadas')}>Consultar por WhatsApp <ArrowRight size={16} /></button></article>
+          <article className="plan-card plan-featured"><div className="plan-top"><span>ACOMPAÑAMIENTO COMPLETO</span><span className="plan-discount-badge" aria-label="25% de descuento">−25%</span></div><h3>Integral</h3><p className="plan-desc">Combina sesiones en vivo, planificación y seguimiento continuo.</p><ul><li><Check size={15} />3 sesiones individuales por semana por videollamada</li><li><Check size={15} />Rutina personalizada de 5 a 6 días por semana</li><li><Check size={15} />Evaluación inicial y objetivos individualizados</li><li><Check size={15} />Corrección técnica en vivo</li><li><Check size={15} />Seguimiento, ajustes semanales y evaluaciones periódicas</li><li><Check size={15} />Planificación progresiva</li></ul><PlanPrices planName="Integral" discount={25} prices={[129990, 359990, 659990]} /><button className="button button-primary" type="button" onClick={() => setContactPlan('Integral')}>Consultar por WhatsApp <ArrowRight size={16} /></button></article>
         </div><p className="plans-note">¿No sabes cuál elegir? <button onClick={() => document.getElementById('sobre-mi')?.scrollIntoView({ behavior: 'smooth' })}>Conversemos primero.</button></p>
       </div></section>
 
@@ -172,7 +229,18 @@ function App() {
 
       <section className="closing-cta"><div className="section-kicker">TU SIGUIENTE PASO</div><h2>El mejor momento<br />para empezar es <em>ahora.</em></h2><a className="button button-primary" href={whatsappUrl("Hola, quiero conocer los planes de Tribu Fit.")} target="_blank" rel="noreferrer">Hablemos de tu plan <ArrowRight size={17} /></a></section>
 
-      <footer className="footer"><a className="brand" href="#inicio"><span className="brand-mark"><img src={brandIcon} alt="" /></span><span>TRIBU<span className="brand-light">FIT</span></span></a><p>Entrenamiento con propósito.</p><div><a href="#metodo">Método</a><a href="#planes">Planes</a><a href="#sobre-mi">Sobre mí</a><button onClick={() => setLoginOpen(true)}>Acceso clientes</button></div><small>© {new Date().getFullYear()} Tribu Fit</small></footer>
+      <footer className="footer">
+        <a className="brand" href="#inicio"><span className="brand-mark"><img src={brandIcon} alt="" /></span><span>TRIBU<span className="brand-light">FIT</span></span></a>
+        <p>Entrenamiento con propósito.</p>
+        <div><a href="#metodo">Método</a><a href="#planes">Planes</a><a href="#sobre-mi">Sobre mí</a><button onClick={() => setLoginOpen(true)}>Acceso clientes</button></div>
+        <small>© {new Date().getFullYear()} Tribu Fit</small>
+        <div className="creator-credit">
+          <span>¿Quieres una web como esta? Desarrollada por{' '}
+            {creatorContacts.map(({ name, email }, index) => <span key={name}>{index > 0 && ' y '}<button type="button" title={`Copiar correo de ${name}`} onClick={() => copyCreatorEmail(name, email)}>{name}{copiedCreator === name && <Check className="creator-copy-check" size={12} aria-hidden="true" />}</button></span>)}
+          </span>
+          <span className="creator-copy-status" role="status">{copyError || (copiedCreator ? `Correo de ${copiedCreator} copiado` : '')}</span>
+        </div>
+      </footer>
 
       {loginOpen && <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) setLoginOpen(false) }}><section className="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title"><button className="modal-close" aria-label="Cerrar" onClick={() => setLoginOpen(false)}><X size={20} /></button><div className="login-mark"><img src={brandIcon} alt="" /></div><p className="section-kicker">QUÉ BUENO TENERTE DE VUELTA</p><h2 id="login-title">Tu entrenamiento<br /><em>te espera.</em></h2><p className="login-hint">Inicia sesión para continuar con tu plan.</p><form onSubmit={submitLogin}><label htmlFor="email">Correo electrónico</label><input id="email" type="email" autoComplete="username" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} required /><label htmlFor="password">Contraseña</label><div className="login-password-field"><input id="password" type={showLoginPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Tu contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required /><button className="login-password-toggle" type="button" aria-label={showLoginPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShowLoginPassword((visible) => !visible)}>{showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>{error && <p className="form-error" role="alert">{error}</p>}<button className="button button-primary login-submit" disabled={loading}>{loading ? 'Ingresando…' : 'Iniciar sesión'} {!loading && <ArrowRight size={16} />}</button></form><p className="no-account">¿Aún no eres cliente? <span>Escríbeme para comenzar.</span></p></section></div>}
       {contactPlan && <div className="modal-backdrop contact-modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) setContactPlan('') }}><section className="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title"><button className="modal-close" aria-label="Cerrar" onClick={() => setContactPlan('')}><X size={20} /></button><p className="section-kicker">CONSULTA DE PLAN</p><h2 id="contact-modal-title">Conversemos sobre<br /><em>{contactPlan}.</em></h2><p>Cuéntame un poco sobre tus objetivos y resolveré tus dudas antes de que elijas. Te responderé personalmente para ayudarte a encontrar la mejor opción.</p><a className="button button-primary contact-whatsapp-button" href={planWhatsappUrl(contactPlan)} target="_blank" rel="noreferrer">Continuar por WhatsApp <ArrowRight size={16} /></a><a className="contact-email-link" href={`mailto:hola@sandrotraining.cl?subject=${encodeURIComponent(`Consulta plan ${contactPlan}`)}`}>También puedes escribir a hola@sandrotraining.cl</a></section></div>}

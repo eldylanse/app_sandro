@@ -1,5 +1,6 @@
 // Importa el archivo 'configEnv.js' para cargar las variables de entorno
 import { PORT, HOST } from "./config/configEnv.js";
+import { getAllowedOrigins } from "./config/cors.js";
 // Importa el módulo 'cors' para agregar los cors
 import cors from "cors";
 // Importa el módulo 'express' para crear la aplicacion web
@@ -15,7 +16,7 @@ import { setupDB } from "./config/configDB.js";
 import {createRoles, createAdminUser} from "./config/initialSetup.js";
 
 // Importa el handler de errores
-import { handleFatalError, handleError } from "./utils/errorHandler.js";
+import { handleFatalError } from "./utils/errorHandler.js";
 
 /**
  * Inicia el servidor web
@@ -26,7 +27,7 @@ async function setupServer() {
     const server = express();
     server.disable("x-powered-by");
     // Agregamos los cors
-    server.use(cors({ credentials: true, origin: true }));
+    server.use(cors({ credentials: true, origin: getAllowedOrigins() }));
     // Agrega el middleware para el manejo de datos en formato URL
     server.use(urlencoded({ extended: true }));
     // Agrega el middleware para el manejo de datos en formato JSON
@@ -43,7 +44,7 @@ async function setupServer() {
       console.log(`=> Servidor corriendo en ${HOST}:${PORT}/api`);
     });
   } catch (err) {
-    handleError(err, "/server.js -> setupServer");
+    throw err;
   }
 }
 
@@ -54,12 +55,12 @@ async function setupAPI() {
   try {
     // Inicia la conexión a la base de datos
     await setupDB();
-    // Inicia el servidor web
-    await setupServer();
     // Inicia la creación de los roles
     await createRoles();
 
-    await createAdminUser();
+   // await createAdminUser();
+    // Acepta peticiones solo después de asegurar la cuenta administradora.
+    await setupServer();
   } catch (err) {
     handleFatalError(err, "/server.js -> setupAPI");
   }

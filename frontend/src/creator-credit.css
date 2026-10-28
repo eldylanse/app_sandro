@@ -1,0 +1,28 @@
+.site-shell .footer { flex-wrap: wrap; }
+.site-shell .creator-credit {
+  order: 4;
+  width: 100%;
+  display: block;
+  margin-top: 5px;
+  padding-top: 12px;
+  border-top: 1px solid #ffffff24;
+  color: #b6c1ba;
+  font: 400 11px/1.5 'DM Sans', sans-serif;
+  text-align: center;
+}
+.site-shell .creator-credit > span,
+.site-shell .creator-credit > span > span { font: inherit; vertical-align: baseline; }
+.site-shell .creator-credit button {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #e0e9e2 !important;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  vertical-align: baseline;
+}
+.site-shell .creator-credit button:hover { color: #fff !important; }
+.site-shell .creator-copy-check { margin-left: 3px; vertical-align: -2px; }
+.site-shell .creator-copy-status:not(:empty) { display: block; margin-top: 3px; color: #d2e5d4; font: inherit; }
