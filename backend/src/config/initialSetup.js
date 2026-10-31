@@ -33,8 +33,8 @@ function adminCredentials(config) {
   if (missing.length) {
     throw new Error(`No se creó el administrador inicial. Faltan variables de entorno: ${missing.join(", ")}.`);
   }
-  if (password.length < 12 || Buffer.byteLength(password, "utf8") > 72) {
-    throw new Error("ADMIN_PASSWORD debe tener al menos 12 caracteres y no superar 72 bytes.");
+  if (password.length < 8 || Buffer.byteLength(password, "utf8") > 72) {
+    throw new Error("ADMIN_PASSWORD debe tener al menos 8 caracteres y no superar 72 bytes.");
   }
   if (email === "admin@email.com" || password === "admin123") {
     throw new Error("Reemplaza las credenciales de ejemplo del administrador antes de iniciar.");

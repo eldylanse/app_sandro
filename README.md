@@ -2,7 +2,7 @@
 
 ## Administrador inicial
 
-La primera cuenta administradora se crea al iniciar el backend con una base de datos sin administradores. Configura `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PHONE` (formato `+569` seguido de ocho dígitos) y `ADMIN_PASSWORD` en las variables de entorno del servidor. La contraseña debe tener al menos 12 caracteres y no superar 72 bytes. Nunca uses las antiguas credenciales de ejemplo.
+La primera cuenta administradora se crea al iniciar el backend con una base de datos sin administradores. Configura `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PHONE` (formato `+569` seguido de ocho dígitos) y `ADMIN_PASSWORD` en las variables de entorno del servidor. La contraseña debe tener al menos 8 caracteres y no superar 72 bytes. Nunca uses las antiguas credenciales de ejemplo.
 
 Para desarrollo local, puedes copiar `backend/src/config/.env.example` a `backend/src/config/.env` y completar los valores sin subir el archivo a Git. En producción, configura las variables directamente en el servicio de hosting.
 

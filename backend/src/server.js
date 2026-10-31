@@ -58,7 +58,7 @@ async function setupAPI() {
     // Inicia la creación de los roles
     await createRoles();
 
-   // await createAdminUser();
+   await createAdminUser();
     // Acepta peticiones solo después de asegurar la cuenta administradora.
     await setupServer();
   } catch (err) {
