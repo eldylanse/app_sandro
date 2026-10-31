@@ -2,6 +2,8 @@
 
 import Review from "../models/review.model.js";
 
+const MAX_FEATURED_REVIEWS = 5;
+
 // Servicio para crear una nueva reseña
 export const createReviewService = async (id_cliente, body) => {
   const { estrellas, comentario } = body;
@@ -48,7 +50,7 @@ export const deleteReviewService = async (reviewId, userId, userRole) => {
   return { message: "Reseña eliminada exitosamente." };
 };
 
-// Servicio para alternar/seleccionar reseña para la página principal (máximo 2)
+// Servicio para alternar/seleccionar reseña para la página principal
 export const toggleFeaturedReviewService = async (reviewId) => {
   const review = await Review.findById(reviewId);
   if (!review) {
@@ -64,8 +66,8 @@ export const toggleFeaturedReviewService = async (reviewId) => {
 
   // Si no está destacada, verificamos cuántas hay activas actualmente
   const countFeatured = await Review.countDocuments({ destacada: true });
-  if (countFeatured >= 2) {
-    throw new Error("Límite alcanzado: Solo puedes seleccionar un máximo de 2 reseñas para la página inicial.");
+  if (countFeatured >= MAX_FEATURED_REVIEWS) {
+    throw new Error(`Límite alcanzado: Solo puedes seleccionar un máximo de ${MAX_FEATURED_REVIEWS} reseñas para la página inicial.`);
   }
 
   review.destacada = true;
@@ -77,7 +79,8 @@ export const toggleFeaturedReviewService = async (reviewId) => {
 export const getFeaturedReviewsService = async () => {
   const reviews = await Review.find({ destacada: true })
     .populate("id_cliente", "nombre email")
-    .sort({ fecha_creacion: -1 });
+    .sort({ fecha_creacion: -1 })
+    .limit(MAX_FEATURED_REVIEWS);
   
   return reviews;
 };

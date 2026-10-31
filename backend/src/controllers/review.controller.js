@@ -69,7 +69,7 @@ export const deleteReview = async (req, res) => {
   }
 };
 
-// Controlador para alternar el estado de destacada (máximo 2 para el home)
+// Controlador para alternar el estado de destacada (máximo 5 para el home)
 export const toggleFeaturedReview = async (req, res) => {
   try {
     const { id } = req.params; // ID de la reseña
