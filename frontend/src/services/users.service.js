@@ -20,6 +20,11 @@ export async function changeClientPassword(currentPassword, newPassword) {
   return data
 }
 
+export async function changeAdminPassword(currentPassword, newPassword) {
+  const { data } = await api.patch('/users/admin/password', { currentPassword, newPassword })
+  return data
+}
+
 export async function getClientProfile() {
   const { data } = await api.get('/users/perfil')
   return data.data

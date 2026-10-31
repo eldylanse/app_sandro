@@ -108,6 +108,18 @@ export const changeClientPasswordService = async (userId, currentPassword, newPa
   await client.save();
 };
 
+export const changeAdminPasswordService = async (userId, currentPassword, newPassword) => {
+  if (typeof currentPassword !== "string" || !currentPassword) throw new Error("Ingresa tu contraseña actual.");
+  validateNewPassword(newPassword);
+  const admin = await User.findOne({ _id: userId, role: "admin" });
+  if (!admin) throw new Error("Cuenta administradora no encontrada.");
+  if (!(await User.comparePassword(currentPassword, admin.password))) throw new Error("La contraseña actual es incorrecta.");
+  if (await User.comparePassword(newPassword, admin.password)) throw new Error("La nueva contraseña debe ser diferente de la actual.");
+  admin.password = await User.encryptPassword(newPassword);
+  admin.tokenVersion = (admin.tokenVersion || 0) + 1;
+  await admin.save();
+};
+
 export const resetClientPasswordService = async (clientId, newPassword) => {
   validateNewPassword(newPassword);
   const client = await User.findOne({ _id: clientId, role: "cliente" });

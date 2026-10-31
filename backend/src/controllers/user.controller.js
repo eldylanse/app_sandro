@@ -10,6 +10,7 @@ import {
   addClientMeasurementService,
   getGoogleConnectionStatusService,
   changeClientPasswordService,
+  changeAdminPasswordService,
   resetClientPasswordService,
   getGoogleAuthReturnOrigin,
 } from "../services/user.service.js";
@@ -44,6 +45,15 @@ export const getClientProfile = async (req, res) => {
 export const changeClientPassword = async (req, res) => {
   try {
     await changeClientPasswordService(req.user.id, req.body?.currentPassword, req.body?.newPassword);
+    return res.status(200).json({ message: "Contraseña actualizada. Vuelve a iniciar sesión." });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const changeAdminPassword = async (req, res) => {
+  try {
+    await changeAdminPasswordService(req.user.id, req.body?.currentPassword, req.body?.newPassword);
     return res.status(200).json({ message: "Contraseña actualizada. Vuelve a iniciar sesión." });
   } catch (error) {
     return res.status(400).json({ message: error.message });
