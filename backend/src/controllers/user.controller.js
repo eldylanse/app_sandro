@@ -92,26 +92,31 @@ export const getGoogleConnectionStatusController = async (req, res) => {
 // 🔹 Callback que recibe el código de autorización desde Google
 export const googleCallbackController = async (req, res) => {
   let frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const redirectToSessions = (status) => {
+    const destination = new URL(frontendUrl);
+    destination.searchParams.set("googleAuth", status);
+    destination.searchParams.set("redirect", "/admin/sesiones");
+    return res.redirect(destination.toString());
+  };
   try {
     const { code, state, error: providerError } = req.query;
     frontendUrl = getGoogleAuthReturnOrigin(state) || frontendUrl;
 
     if (providerError) {
-      return res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=error`);
+      return redirectToSessions("error");
     }
     if (!code) {
-      return res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=error`);
+      return redirectToSessions("error");
     }
 
     // Guardamos los tokens intercambiados en MongoDB
     await saveGoogleAuthTokensService(state, code);
 
-    // Redirigimos de vuelta a tu Frontend (Vercel / React)
-    // Cambia esta URL por la pantalla de ajustes/perfil de tu frontend
-    res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=success`);
+    // Devuelve primero a la raíz, que el hosting estático siempre sirve; React abre Sesiones.
+    redirectToSessions("success");
   } catch (error) {
     console.error("Error en Google Callback:", error);
-    res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=error`);
+    redirectToSessions("error");
   }
 };
 

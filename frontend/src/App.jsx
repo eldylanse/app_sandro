@@ -48,7 +48,17 @@ function roleFromToken(token) {
 }
 
 function App() {
-  const [path, setPath] = useState(window.location.pathname)
+  const [path, setPath] = useState(() => {
+    const currentPath = window.location.pathname
+    const params = new URLSearchParams(window.location.search)
+    const redirectPath = params.get('redirect')
+    const googleAuth = params.get('googleAuth')
+    if (currentPath === '/' && googleAuth && redirectPath === '/admin/sesiones') {
+      window.history.replaceState({}, '', `${redirectPath}?googleAuth=${encodeURIComponent(googleAuth)}`)
+      return redirectPath
+    }
+    return currentPath
+  })
   const [token, setToken] = useState(() => localStorage.getItem(tokenKey))
   const [loginOpen, setLoginOpen] = useState(false)
   const [showLoginPassword, setShowLoginPassword] = useState(false)
