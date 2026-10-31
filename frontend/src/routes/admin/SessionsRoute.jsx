@@ -79,6 +79,7 @@ export default function SessionsRoute({ adminId }) {
       setNotice('Sesión agendada y enlace generado.')
       await refresh()
     } catch (requestError) {
+      if (requestError.response?.data?.code === 'GOOGLE_RECONNECT_REQUIRED') setGoogleConnected(false)
       setError(requestError.response?.data?.message || 'No se pudo agendar la sesión. Revisa que Google Meet esté conectado en la cuenta administradora.')
     } finally {
       setSaving(false)

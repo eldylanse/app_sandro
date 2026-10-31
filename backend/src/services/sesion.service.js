@@ -5,6 +5,7 @@ import User from "../models/user.model.js";
 import { google } from "googleapis";
 import { randomUUID } from "node:crypto";
 import { getGoogleOAuth2Client } from "./user.service.js";
+import { isInvalidGoogleGrant } from "./google-auth-error.js";
 
 // 🔹 Crear una nueva sesión con enlace automático a Google Meet
 export const createSessionService = async (sessionData) => {
@@ -56,30 +57,48 @@ export const createSessionService = async (sessionData) => {
   };
 
   // 5. Crear evento en Google Calendar con reunión de Google Meet
-  const response = await calendar.events.insert({
-    calendarId: "primary",
-    resource: eventPayload,
-    conferenceDataVersion: 1, // REQUERIDO para que genere la videollamada
-    sendUpdates: "all",
-  });
+  let event;
+  let linkMeet;
+  try {
+    const response = await calendar.events.insert({
+      calendarId: "primary",
+      resource: eventPayload,
+      conferenceDataVersion: 1,
+      sendUpdates: "all",
+    });
 
-  let event = response.data;
-  let linkMeet = event.hangoutLink || event.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri;
-  for (let attempt = 0; !linkMeet && attempt < 5; attempt += 1) {
-    const conferenceStatus = event.conferenceData?.createRequest?.status?.statusCode;
-    if (conferenceStatus === "failure") break;
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    const eventResponse = await calendar.events.get({ calendarId: "primary", eventId: event.id });
-    event = eventResponse.data;
+    event = response.data;
     linkMeet = event.hangoutLink || event.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri;
-  }
+    for (let attempt = 0; !linkMeet && attempt < 5; attempt += 1) {
+      const conferenceStatus = event.conferenceData?.createRequest?.status?.statusCode;
+      if (conferenceStatus === "failure") break;
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      const eventResponse = await calendar.events.get({ calendarId: "primary", eventId: event.id });
+      event = eventResponse.data;
+      linkMeet = event.hangoutLink || event.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri;
+    }
 
-  if (!linkMeet) {
-    await calendar.events.delete({ calendarId: "primary", eventId: event.id }).catch(() => {});
-    const conferenceStatus = event.conferenceData?.createRequest?.status?.statusCode;
-    throw new Error(conferenceStatus === "failure"
-      ? "Google Calendar no pudo generar el enlace de Meet. Revisa que la cuenta permita crear videollamadas."
-      : "Google Calendar aún no entregó el enlace de Meet. Inténtalo nuevamente en unos segundos.");
+    if (!linkMeet) {
+      await calendar.events.delete({ calendarId: "primary", eventId: event.id }).catch(() => {});
+      const conferenceStatus = event.conferenceData?.createRequest?.status?.statusCode;
+      throw new Error(conferenceStatus === "failure"
+        ? "Google Calendar no pudo generar el enlace de Meet. Revisa que la cuenta permita crear videollamadas."
+        : "Google Calendar aún no entregó el enlace de Meet. Inténtalo nuevamente en unos segundos.");
+    }
+  } catch (error) {
+    if (!isInvalidGoogleGrant(error)) throw error;
+    await User.updateOne(
+      { _id: adminUser._id, "googleAuth.refreshToken": adminUser.googleAuth.refreshToken },
+      { $set: {
+        "googleAuth.isAuthorized": false,
+        "googleAuth.refreshToken": null,
+        "googleAuth.accessToken": null,
+        "googleAuth.tokenExpiryDate": null,
+      } },
+    );
+    const reconnectError = new Error("La conexión con Google Calendar venció o fue revocada. Vuelve a conectar tu cuenta de Google y luego crea la sesión.");
+    reconnectError.code = "GOOGLE_RECONNECT_REQUIRED";
+    throw reconnectError;
   }
 
   // 6. Guardar la sesión en la BD

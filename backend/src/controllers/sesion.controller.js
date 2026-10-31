@@ -18,7 +18,7 @@ export const createSessionController = async (req, res) => {
       data: session,
     });
   } catch (error) {
-    res.status(400).json({ status: "Error", message: error.message });
+    res.status(400).json({ status: "Error", message: error.message, ...(error.code && { code: error.code }) });
   }
 };
 
