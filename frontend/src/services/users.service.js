@@ -26,7 +26,7 @@ export async function getClientProfile() {
 }
 
 export async function getGoogleAuthUrl() {
-  const { data } = await api.get('/users/google/auth-url')
+  const { data } = await api.get('/users/google/auth-url', { params: { returnOrigin: window.location.origin } })
   return data
 }
 

@@ -11,13 +11,7 @@ function todayInput() {
   return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 }
 
-function futureInput() {
-  const future = new Date()
-  future.setDate(future.getDate() + 1)
-  return `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}-${String(future.getDate()).padStart(2, '0')}`
-}
-
-function newDay(date = futureInput()) {
+function newDay(date = todayInput()) {
   return { fecha: date, finalizado: false, ejercicios: [] }
 }
 
@@ -33,7 +27,8 @@ function displayDate(value, options = { weekday: 'long', day: 'numeric', month: 
 }
 
 function freshForm(clientId = '') {
-  return { id_cliente: clientId, nombre: '', objetivo: '', fecha_inicio: futureInput(), fecha_termino: '', microciclos: [{ numero_semana: 1, dias_entrenamiento: [newDay()] }] }
+  const startDate = todayInput()
+  return { id_cliente: clientId, nombre: '', objetivo: '', fecha_inicio: startDate, fecha_termino: '', microciclos: [{ numero_semana: 1, dias_entrenamiento: [newDay(startDate)] }] }
 }
 
 function fromPlanning(planning) {
@@ -179,9 +174,9 @@ export default function PlanningRoute() {
     setForm((current) => {
       const week = current.microciclos[weekIndex]
       const dates = week.dias_entrenamiento.map((day) => day.fecha).filter(Boolean).sort()
-      const dateAfterLast = dates.length ? new Date(`${dates[dates.length - 1]}T12:00:00`) : new Date(`${current.fecha_inicio || futureInput()}T12:00:00`)
+      const dateAfterLast = dates.length ? new Date(`${dates[dates.length - 1]}T12:00:00`) : new Date(`${current.fecha_inicio || todayInput()}T12:00:00`)
       if (dates.length) dateAfterLast.setDate(dateAfterLast.getDate() + 1)
-      const minDate = isEditing ? todayInput() : futureInput()
+      const minDate = todayInput()
       const proposed = `${dateAfterLast.getFullYear()}-${String(dateAfterLast.getMonth() + 1).padStart(2, '0')}-${String(dateAfterLast.getDate()).padStart(2, '0')}`
       const date = proposed < minDate ? minDate : proposed
       return { ...current, microciclos: current.microciclos.map((item, index) => index === weekIndex ? { ...item, dias_entrenamiento: [...item.dias_entrenamiento, newDay(date)] } : item) }
@@ -200,12 +195,12 @@ export default function PlanningRoute() {
       setError('Cada semana debe tener al menos un día de entrenamiento.')
       return
     }
-    const minimumStart = isEditing ? '' : futureInput()
+    const minimumStart = todayInput()
     if (!form.id_cliente || !form.nombre.trim() || !form.objetivo.trim() || !form.fecha_inicio || !form.fecha_termino || (!isEditing && form.fecha_inicio < minimumStart) || form.fecha_termino < form.fecha_inicio) {
-      setError(isEditing ? 'Completa los datos del plan y verifica que el rango de fechas sea válido.' : 'Completa los datos del plan. Las fechas de una nueva planificación deben ser futuras.')
+      setError(isEditing ? 'Completa los datos del plan y verifica que el rango de fechas sea válido.' : 'Completa los datos del plan. La fecha de inicio debe ser hoy o posterior.')
       return
     }
-    if (form.microciclos.some((week) => week.dias_entrenamiento.some((day) => !day.fecha || (!isEditing && day.fecha < futureInput()) || day.fecha < form.fecha_inicio || day.fecha > form.fecha_termino))) {
+    if (form.microciclos.some((week) => week.dias_entrenamiento.some((day) => !day.fecha || (!isEditing && day.fecha < minimumStart) || day.fecha < form.fecha_inicio || day.fecha > form.fecha_termino))) {
       setError(isEditing ? 'Cada día debe quedar dentro del rango de fechas del plan.' : 'Cada día debe quedar dentro del rango del plan y no puede estar en el pasado.')
       return
     }
@@ -282,8 +277,8 @@ export default function PlanningRoute() {
             <label>Cliente<select required value={form.id_cliente} onChange={(event) => setForm({ ...form, id_cliente: event.target.value })}><option value="">Selecciona un cliente</option>{clients.map((client) => <option key={client._id} value={client._id}>{client.nombre} · {client.email}</option>)}</select></label>
             <label>Nombre del plan<input value={form.nombre} onChange={(event) => setForm({ ...form, nombre: event.target.value })} required placeholder="Ej. Fuerza · Fase 1" /></label>
             <label>Objetivo<input value={form.objetivo} onChange={(event) => setForm({ ...form, objetivo: event.target.value })} required placeholder="Ej. Aumento de fuerza" /></label>
-            <label>Desde<input type="date" min={isEditing ? undefined : futureInput()} value={form.fecha_inicio} onChange={(event) => setForm({ ...form, fecha_inicio: event.target.value })} required /></label>
-            <label>Hasta<input type="date" min={form.fecha_inicio || (isEditing ? undefined : futureInput())} value={form.fecha_termino} onChange={(event) => setForm({ ...form, fecha_termino: event.target.value })} required /></label>
+            <label>Desde<input type="date" min={isEditing ? undefined : todayInput()} value={form.fecha_inicio} onChange={(event) => setForm({ ...form, fecha_inicio: event.target.value })} required /></label>
+            <label>Hasta<input type="date" min={form.fecha_inicio || (isEditing ? undefined : todayInput())} value={form.fecha_termino} onChange={(event) => setForm({ ...form, fecha_termino: event.target.value })} required /></label>
           </div>
         </section>
 
@@ -295,7 +290,7 @@ export default function PlanningRoute() {
             <header><div><span>SEMANA {weekIndex + 1}</span><strong>{week.dias_entrenamiento.length} {week.dias_entrenamiento.length === 1 ? 'día' : 'días'}</strong></div><button className="planning-editor-icon-button is-danger" type="button" aria-label={`Eliminar semana ${weekIndex + 1}`} disabled={form.microciclos.length === 1} onClick={() => removeWeek(weekIndex)}><Trash2 size={15} /></button></header>
             <div className="planning-editor-days">{week.dias_entrenamiento.map((day, dayIndex) => <section className="planning-editor-day" key={`week-${weekIndex}-day-${dayIndex}`}>
               <div className="planning-editor-day-top"><div><CalendarDays size={15} /><strong>{displayDate(day.fecha)}</strong><span>{day.ejercicios.length} {day.ejercicios.length === 1 ? 'ejercicio' : 'ejercicios'}</span></div><button className="planning-editor-icon-button is-danger" type="button" aria-label="Eliminar día" onClick={() => updateWeek(weekIndex, (current) => ({ ...current, dias_entrenamiento: current.dias_entrenamiento.filter((_, index) => index !== dayIndex) }))}><X size={15} /></button></div>
-              <label className="planning-editor-date">Fecha<input type="date" min={isEditing && day.fecha < todayInput() ? day.fecha : isEditing ? todayInput() : futureInput()} max={form.fecha_termino || undefined} value={day.fecha} onChange={(event) => updateDay(weekIndex, dayIndex, (current) => ({ ...current, fecha: event.target.value }))} required /></label>
+              <label className="planning-editor-date">Fecha<input type="date" min={isEditing && day.fecha < todayInput() ? day.fecha : todayInput()} max={form.fecha_termino || undefined} value={day.fecha} onChange={(event) => updateDay(weekIndex, dayIndex, (current) => ({ ...current, fecha: event.target.value }))} required /></label>
               <div className="planning-editor-exercises">{day.ejercicios.map((exercise, exerciseIndex) => <div className="planning-editor-exercise" key={`exercise-${exerciseIndex}`}>
                 <div className="planning-editor-exercise-heading">
                   <span className="planning-editor-exercise-number">{String(exerciseIndex + 1).padStart(2, '0')}</span>

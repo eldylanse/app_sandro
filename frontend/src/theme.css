@@ -216,8 +216,9 @@ body { color: var(--palette-black); }
 .hero h1 em, .hero .text-link span, .hero-stamp svg { color: #d5d2ce !important; }
 .hero .eyebrow span, .plan-dot { background: #d5d2ce !important; }
 .week-day.is-selected span, .week-day.is-selected strong { color: var(--palette-white) !important; }
-.footer > p, .footer small, .footer > div a, .footer > div button,
-.client-footer span, .admin-footer span { color: var(--palette-white) !important; }
+.footer > p, .footer small, .footer > div a, .footer > div button { color: var(--palette-white) !important; }
+.client-footer span, .admin-footer span { color: var(--palette-iron-grey) !important; }
+.client-footer span:first-child, .admin-footer span:first-child { color: var(--palette-black) !important; }
 .admin-brand-tag { color: var(--palette-white) !important; }
 
 /* Featured reviews beside the method on the home page. */

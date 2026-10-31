@@ -11,6 +11,7 @@ import {
   getGoogleConnectionStatusService,
   changeClientPasswordService,
   resetClientPasswordService,
+  getGoogleAuthReturnOrigin,
 } from "../services/user.service.js";
 
 export const getClients = async (_req, res) => {
@@ -62,7 +63,7 @@ export const getGoogleAuthUrlController = async (req, res) => {
   try {
     // Usamos el ID del usuario autenticado (del middleware de autenticación)
     const userId = req.user.id; 
-    const url = await getGoogleAuthUrlService(userId);
+    const url = await getGoogleAuthUrlService(userId, req.query.returnOrigin);
     res.status(200).json({ status: "Success", data: { url } });
   } catch (error) {
     res.status(500).json({ status: "Error", message: error.message });
@@ -80,9 +81,10 @@ export const getGoogleConnectionStatusController = async (req, res) => {
 
 // 🔹 Callback que recibe el código de autorización desde Google
 export const googleCallbackController = async (req, res) => {
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  let frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   try {
     const { code, state, error: providerError } = req.query;
+    frontendUrl = getGoogleAuthReturnOrigin(state) || frontendUrl;
 
     if (providerError) {
       return res.redirect(`${frontendUrl}/admin/sesiones?googleAuth=error`);

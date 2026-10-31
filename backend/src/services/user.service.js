@@ -13,6 +13,7 @@ import Planning from "../models/planning.model.js";
 import Review from "../models/review.model.js";
 import Session from "../models/sesion.model.js";
 import Exercise from "../models/exercise.model.js";
+import { getAllowedOrigins } from "../config/cors.js";
 
 export const getGoogleOAuth2Client = () => {
   return new google.auth.OAuth2(
@@ -23,11 +24,15 @@ export const getGoogleOAuth2Client = () => {
 };
 
 // Servicio para generar la URL de vinculación con Google
-export const getGoogleAuthUrlService = async (userId) => {
+export const getGoogleAuthUrlService = async (userId, returnOrigin) => {
   const admin = await User.findOne({ _id: userId, role: "admin" }).select("_id");
   if (!admin) throw new Error("Cuenta administradora no encontrada.");
 
-  const state = jwt.sign({ id: admin._id.toString(), purpose: "google-calendar" }, ACCESS_JWT_SECRET, { expiresIn: "10m" });
+  if (typeof returnOrigin !== "string" || !getAllowedOrigins().includes(returnOrigin)) {
+    throw new Error("La dirección de la aplicación no está permitida para conectar Google Calendar.");
+  }
+
+  const state = jwt.sign({ id: admin._id.toString(), purpose: "google-calendar", returnOrigin }, ACCESS_JWT_SECRET, { expiresIn: "10m" });
   const oauth2Client = getGoogleOAuth2Client();
   const scopes = [
     "https://www.googleapis.com/auth/calendar",
@@ -42,6 +47,17 @@ export const getGoogleAuthUrlService = async (userId) => {
   });
 
   return url;
+};
+
+export const getGoogleAuthReturnOrigin = (state) => {
+  const payload = jwt.verify(state, ACCESS_JWT_SECRET);
+  if (payload.purpose !== "google-calendar" || !payload.id) {
+    throw new Error("No se pudo validar la conexión con Google Calendar.");
+  }
+  if (payload.returnOrigin && !getAllowedOrigins().includes(payload.returnOrigin)) {
+    throw new Error("La dirección de retorno de Google Calendar no está permitida.");
+  }
+  return payload.returnOrigin;
 };
 
 export const getGoogleConnectionStatusService = async (userId) => {
