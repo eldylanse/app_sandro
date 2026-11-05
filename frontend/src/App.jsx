@@ -196,13 +196,13 @@ function App() {
           <p className="eyebrow"><span /> ENTRENAMIENTO PERSONALIZADO</p>
           <h1>Tu mejor versión<br />se <em>construye.</em></h1>
           <p className="hero-lead">Entrena con intención. Avanza con un plan hecho para ti, tu ritmo y tus objetivos.</p>
-          <div className="hero-actions"><a className="button button-primary" href="#planes">Encuentra tu plan <ArrowRight size={17} /></a><button className="text-link" onClick={() => setLoginOpen(true)}>Ya soy cliente <span>↗</span></button></div>
+          <div className="hero-actions"><a className="button button-primary" href="#planes">Encuentra tu plan <ArrowRight size={17} /></a><button className="text-link" onClick={() => setLoginOpen(true)}>Ya soy cliente</button></div>
           <div className="hero-proof"><div className="proof-avatars"><span>F</span><span>M</span><span>J</span></div><div><strong>Progreso que se nota</strong><small>Entrenamiento con seguimiento real</small></div></div>
         </div>
         <div className="hero-stamp"><Dumbbell size={17} /><span>FUERZA · MOVIMIENTO · CONSTANCIA</span></div>
       </section>
 
-      <section className="ticker" aria-label="Principios de entrenamiento"><span>ENTRENA CON PROPÓSITO</span><i>✳</i><span>AVANZA A TU RITMO</span><i>✳</i><span>HAZLO SOSTENIBLE</span><i>✳</i><span>ENTRENA CON PROPÓSITO</span></section>
+      <section className="ticker" aria-label="Principios de entrenamiento"><span>ENTRENA CON PROPÓSITO</span><span>AVANZA A TU RITMO</span><span>HAZLO SOSTENIBLE</span><span>ENTRENA CON PROPÓSITO</span></section>
 
       <section className="intro section-wrap" id="metodo">
         <div className="intro-layout">

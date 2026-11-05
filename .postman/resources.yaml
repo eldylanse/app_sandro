@@ -1,0 +1,15 @@
+workspace:
+  id: 5ea81fb4-f307-41f9-89d9-b23f6cc114a6
+localResources:
+  specs:
+    - ../postman/specs/api_sandro/api_sandro.json
+resourceNameMappings:
+  specs:
+    - ../postman/specs/api_sandro/api_sandro.json: api_sandro
+cloudResources:
+  collections:
+    ../postman/collections/proyecto_sandro: 58845689-286e333c-a327-4015-9e6a-7942ed7e53bd
+  specs:
+    ../postman/specs/api_sandro/api_sandro.json: b0b1e7cd-9684-4227-8483-22398e9256ac
+  globals:
+    ../postman/globals/workspace.globals.yaml: 80612161-69d5-4807-8056-db8c5c498347
